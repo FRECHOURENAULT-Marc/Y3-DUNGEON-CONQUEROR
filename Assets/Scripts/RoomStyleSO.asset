@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc43ccb9a5b47e248b8681ba74e8e83e, type: 3}
+  m_Name: RoomStyleSO
+  m_EditorClassIdentifier: Assembly-CSharp::RoomStyleSO
+  minWidth: 32
+  maxWidth: 64
+  minDepth: 32
+  maxDepth: 64
+  minHeight: 4
+  maxHeight: 16
+  padding: 1
+  roomPrefab: {fileID: 6375341226810107106, guid: 62695da1b92cde7409a1d632d95f6943, type: 3}
+  floorPrefab: {fileID: 4715274132501412591, guid: 3d9fe352f14f3394fa1e77d52bac0c49, type: 3}
+  wallPrefab: {fileID: 4715274132501412591, guid: 7481f8bd55c2eae49839733bdf5e1e84, type: 3}
