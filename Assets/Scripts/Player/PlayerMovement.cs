@@ -1,3 +1,4 @@
+using System;
 using NaughtyAttributes;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -33,8 +34,15 @@ public class PlayerMovement : MonoBehaviour
     [Header("Debug Info")]
     [SerializeField] Vector3 _moveDirection;
     [ShowNonSerializedField] bool _isGrounded;
+    [ShowNonSerializedField] bool _predictedIsGrounded;
     [ShowNonSerializedField] bool _isOnSprint;
+    [ShowNonSerializedField] float _velocity;
 
+
+    public bool IsGrounded { get => _isGrounded; }
+    public bool PredictedIsGrounded { get => _predictedIsGrounded; }
+
+    public float Velocity { get => _velocity; }
 
 
 
@@ -66,13 +74,18 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // PlayerPosition
+        _velocity = _moveDirection.magnitude * ( _movementSpeed + ( _isOnSprint ? _sprintAdditionnalSpeed : 0 ) );
+        float maxVel = _movementSpeed + _sprintAdditionnalSpeed;
+        _velocity /= maxVel;
+
+        // PlayerPosition update
         _playerRoot.transform.Translate(
             _moveDirection * 
             ( _movementSpeed + 
             ( _isOnSprint ? _sprintAdditionnalSpeed : 0 ) ) * 
             Time.deltaTime
         );
+
 
         // Set camera to player position
         _playerCamera.transform.position = _playerRoot.transform.position + _cameraOffset;
@@ -100,7 +113,9 @@ public class PlayerMovement : MonoBehaviour
 
         // _isgrounded
         _isGrounded = Physics.Raycast(_playerRoot.transform.position, Vector3.down, _jumpRaycastDistance);
+        _predictedIsGrounded = Physics.Raycast(_playerRoot.transform.position, Vector3.down, _jumpRaycastDistance + 1);
         Debug.DrawRay(_playerRoot.transform.position, Vector3.down * _jumpRaycastDistance, Color.red);
+        Debug.DrawRay(_playerRoot.transform.position, Vector3.down * (_jumpRaycastDistance + 1), Color.blue);
     }
 
     void HandleMove(Vector2 moveInput)
