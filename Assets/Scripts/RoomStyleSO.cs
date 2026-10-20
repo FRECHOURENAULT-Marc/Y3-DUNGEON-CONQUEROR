@@ -20,6 +20,8 @@ public class RoomStyleSO : ScriptableObject
     public GameObject roomPrefab;
     public GameObject floorPrefab;
     public GameObject wallPrefab;
+    public GameObject doorPrefab;
+    public GameObject corridorPrefab;
     
     private void Reset()
     {
