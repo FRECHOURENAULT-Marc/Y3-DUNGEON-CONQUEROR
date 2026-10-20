@@ -12,15 +12,24 @@ public class SRPGenerator : MonoBehaviour
     [SerializeField] MapStyleSO mapStyle;
     [Range(0, 1000)] 
     [SerializeField] int tries;
-    
+
     [Header("Seed")] 
-    public int seed { get; private set; }
-    public bool randomSeed { get; private set; }
+    [SerializeField] int seed;
+    [SerializeField] bool randomSeed;
     
     List<GameObject> _finalRooms;
     List<GameObject> _floors;
     List<GameObject> _walls;
 
+    public int Seed { 
+        get => seed;
+        private set
+        {
+            seed = value; 
+            InitSeed();
+        } 
+    }
+    
     // Unity
     
     private void Reset()
@@ -37,6 +46,7 @@ public class SRPGenerator : MonoBehaviour
     [Button]
     public void GenerateAllSteps()
     {
+        ResetAll();
         GenerateRooms();
         BuildRoomsFloors();
         BuildRoomsWalls();
@@ -45,9 +55,6 @@ public class SRPGenerator : MonoBehaviour
     [Button]
     void GenerateRooms()
     {
-        Init();
-        Clear();
-        
         for (int i = 0; i < tries; i++)
         {
             Vector3 offest = new Vector3(
@@ -94,17 +101,17 @@ public class SRPGenerator : MonoBehaviour
         {
             List<Vector3> scales = new()
             {
-                new Vector3(1, go.transform.localScale.y, go.transform.localScale.z),
-                new Vector3(1, go.transform.localScale.y, go.transform.localScale.z),
-                new Vector3(go.transform.localScale.x, go.transform.localScale.y, 1),
-                new Vector3(go.transform.localScale.x, go.transform.localScale.y, 1),
+                new Vector3(1/go.transform.localScale.x, 1, 1),
+                new Vector3(1/go.transform.localScale.x, 1, 1),
+                new Vector3(1, 1, 1/go.transform.localScale.z),
+                new Vector3(1, 1, 1/go.transform.localScale.z),
             };
             List<Vector3> offsets = new()
             {
-                new Vector3(-go.transform.localScale.x/2, go.transform.localScale.y/2, 0),
-                new Vector3(go.transform.localScale.x/2, go.transform.localScale.y/2, 0),
-                new Vector3(0, go.transform.localScale.y/2, -go.transform.localScale.z),
-                new Vector3(0, go.transform.localScale.y/2, go.transform.localScale.z),
+                new Vector3(-go.transform.localScale.x/2, 0, 0),
+                new Vector3(go.transform.localScale.x/2, 0, 0),
+                new Vector3(0, 0, -go.transform.localScale.z/2),
+                new Vector3(0, 0, go.transform.localScale.z/2),
             };            
 
             
@@ -120,9 +127,28 @@ public class SRPGenerator : MonoBehaviour
         }
     }
     
-    // Utils
+    [Button]
+    void BuildCorridors()
+    {}
     
-    void Init()
+    [Button]
+    void ResetAll()
+    {
+        InitSeed();
+        InitIfNull();
+        Clear();
+    }
+    
+    // Utils
+
+    void InitSeed()
+    {
+        if(seed == 0 || randomSeed)
+            seed = Random.Range(int.MinValue, int.MaxValue);
+        Random.InitState(seed);
+    }
+    
+    void InitIfNull()
     {
         if (mapStyle == null)
         {
@@ -139,12 +165,9 @@ public class SRPGenerator : MonoBehaviour
         _floors ??= new List<GameObject>();
         _walls ??= new List<GameObject>();
 
-        if(seed == 0 || randomSeed)
-            seed = Random.Range(int.MinValue, int.MaxValue);
-        Random.InitState(seed);
-    }
 
-    [Button]
+    }
+    
     void Clear()
     {
         for (int i = _finalRooms.Count - 1; i >= 0; i--)
