@@ -20,23 +20,6 @@ public static class Utils {
     }
 }
 
-// public class GenDoor1
-// {
-//     public GameObject go;
-//     public GameObject corridorStart;
-//     public bool isConnected;
-//     
-//     public GenDoor1()
-//     {
-//         isConnected = false;
-//     }
-//
-//     public void Destroy()
-//     {
-//         UnityEngine.Object.DestroyImmediate(go);
-//     }
-// }
-
 public class RayBis
 {
     public Vector3 origin;
@@ -50,7 +33,7 @@ public class GenRoom
     public GameObject floor;
     public List<GameObject> walls = new();
     public List<GenDoor> doors = new();
-    public GameObject corridor;
+    public List<GameObject> corridors = new();
 
     public void Destroy()
     {
@@ -63,6 +46,7 @@ public class GenRoom
         
         if(walls != null)
             SRPGenerator.DestroyObjectsInList(ref walls);
+        
         if (doors != null)
         {
             for(int i = doors.Count - 1; i >= 0; --i)
@@ -70,8 +54,8 @@ public class GenRoom
             doors.Clear();
         }
         
-        if(corridor != null)
-            UnityEngine.Object.DestroyImmediate(corridor);
+        if(corridors != null)
+            SRPGenerator.DestroyObjectsInList(ref corridors);;
     }
 }
 
@@ -93,14 +77,10 @@ public class SRPGenerator : MonoBehaviour
     List<GenRoom> _validatedRooms;
     
     List<GameObject> _finalRooms;
-    //List<GameObject> _validatedRooms;
-    // List<GameObject> _floors;
-    // List<GameObject> _walls;
-    // List<GameObject> _doors;
-    // List<GameObject> _corridors;
     
     // Debug
     List<RayBis> _rays = new();
+    List<Bounds> _boxs = new();
 
     public int Seed { 
         get => seed;
@@ -124,18 +104,12 @@ public class SRPGenerator : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        Gizmos.color = Color.red;
         foreach (var ray in _rays)
-        {
-            Gizmos.color = Color.red;
-            //Gizmos.DrawLine(Vector3.one * 10f, Vector3.one * 50f);
             Gizmos.DrawLine(ray.origin, ray.origin + ray.direction);
-        }
-        
-        // foreach (GameObject go in _corridors)
-        // {
-        //     Gizmos.color = Color.red;
-        //     Gizmos.DrawLine(go.transform.position, go.transform.forward * 20);
-        // }
+
+        foreach (var box in _boxs)
+            Gizmos.DrawWireCube(box.center, box.size);
     }
 
     // Generation
@@ -143,24 +117,24 @@ public class SRPGenerator : MonoBehaviour
     [Button]
     public void GenerateAllSteps()
     {
-        _rays.Clear();
-        
         ResetAll();
         GenerateRooms();
         BuildRoomsFloors();
         BuildRoomsWallsAndDoors();
-        BuildCorridors();
+        BuildCorridorsAsync();
     }
     
     [Button]
     void GenerateRooms()
     {
+        InitSeed();
+        
         for (int i = 0; i < tries; i++)
         {
             Vector3 offest = new Vector3(
-                Random.Range(-mapStyle.width, mapStyle.width) / 2.0f, 
-                Random.Range(-mapStyle.height, mapStyle.height) / 2.0f, 
-                Random.Range(-mapStyle.depth, mapStyle.depth) / 2.0f);
+                (int)Math.Round(Random.Range(-mapStyle.width, mapStyle.width) / 2.0f), 
+                (int)Math.Round(Random.Range(-mapStyle.height, mapStyle.height) / 2.0f), 
+                (int)Math.Round(Random.Range(-mapStyle.depth, mapStyle.depth) / 2.0f));
             Vector3 pos = transform.position + offest;
             Vector3 scale = new Vector3(
                 Random.Range(roomStyle.minWidth, roomStyle.maxWidth), 
@@ -220,8 +194,8 @@ public class SRPGenerator : MonoBehaviour
             {
                 new Vector3(0, 180, 0),
                 new Vector3(0, 0, 0),
-                new Vector3(0, 90, 0),
                 new Vector3(0, -90, 0),
+                new Vector3(0, 90, 0),
             };
 
             List<Vector3> defaultWallScales = new()
@@ -305,6 +279,12 @@ public class SRPGenerator : MonoBehaviour
         
     }
 
+    async void BuildCorridorsAsync()
+    {
+        await Awaitable.NextFrameAsync();
+        BuildCorridors();
+    } 
+    
     [Button]
     void BuildCorridors()
     {
@@ -315,23 +295,37 @@ public class SRPGenerator : MonoBehaviour
             {
                 if(door.isConnected)
                     continue;
+                
+                // Faire un path finding dans une grid ?
+                // Faire un mesh de liaison door1 - corridor - door2 ?
+                
                 GenDoor closestDoor = FindClosestDoor(room, door);
                 if(closestDoor == null)
                     continue;
-                // create connection
-                closestDoor.isConnected = true;
+                
                 door.isConnected = true;
-                Debug.Log("Connected 2 doors");
+                closestDoor.isConnected = true;
+                
+                // main corridor
+                Vector3 start = door.corridorStart.transform.position;
+                Vector3 end = closestDoor.corridorStart.transform.position;
+                float scaleZ = Vector3.Distance(start, end);
+                GameObject corridor = Instantiate(roomStyle.corridorPrefab, room.root.transform);
+                corridor.transform.position = new Vector3(
+                    (start.x + end.x) / 2f, 
+                    (start.y + end.y) / 2f, 
+                    (start.z + end.z) / 2f);
+                corridor.transform.LookAt(end);
+                corridor.transform.localScale = new Vector3(1, 1, scaleZ);
+                room.corridors.Add(corridor);
+                
             }
-            
         }
-        
     }
     
     [Button]
     void ResetAll()
     {
-        InitSeed();
         InitIfNull();
         Clear();
     }
@@ -377,6 +371,9 @@ public class SRPGenerator : MonoBehaviour
     
     void Clear()
     {
+        _rays.Clear(); // debug
+        _boxs.Clear(); // debug
+        
         DestroyObjectsInList(ref _connectedRooms);
         DestroyObjectsInList(ref _validatedRooms);
         
@@ -419,35 +416,34 @@ public class SRPGenerator : MonoBehaviour
         return b1.Intersects(b2);
     }
 
-    GameObject FindClosestRoom(GameObject go)
+    bool CollidingWithCorridorObstacle(Vector3 start, Vector3 halfSize, Vector3 dir, int mask)
     {
-        float dist = float.MaxValue;
-        GameObject closest = null;
-        foreach (GenRoom other in _validatedRooms)
+        Quaternion rot = Quaternion.LookRotation(dir.normalized);
+        RaycastHit[] hits = Physics.BoxCastAll(start, halfSize, dir.normalized,
+            rot, dir.magnitude, 
+            mask);
+        
+        foreach (RaycastHit hit in hits)
         {
-            if(other.root == go)
+            if (hit.collider == null)
                 continue;
-            
-            float d = Vector3.Distance(go.transform.position, other.root.transform.position);
-            if (d > dist)
+                    
+            if (hit.collider.gameObject.TryGetComponent(out CorridorObstacle obs) == false)
                 continue;
-            dist = d;
-            closest = other.root;
+
+            return true;
         }
-        
-        if(closest == null)
-            Debug.LogWarning("No closest room found");
-        
-        return closest;
-    }    
+        return false;
+    }
+    
     GenDoor FindClosestDoor(GenRoom r, GenDoor door)
     {
         float dist = float.MaxValue;
         GenDoor closest = null;
+        // get the corridor dimensions
         GameObject tmpCorridor = Instantiate(roomStyle.corridorPrefab);
-        Vector3 corridorSize = tmpCorridor.GetComponent<Collider>().bounds.size;
+        Vector3 corridorPrefabSize = tmpCorridor.GetComponent<Collider>().bounds.size;
         DestroyImmediate(tmpCorridor);
-        //Debug.Log("CorridorSize: " + corridorSize);
         
         foreach (GenRoom otherRoom in _validatedRooms)
         {
@@ -459,63 +455,28 @@ public class SRPGenerator : MonoBehaviour
                 if(otherDoor.isConnected) 
                     continue;
                 
-                float d = Vector3.Distance(door.transform.position, otherDoor.transform.position);
+                Vector3 start = door.corridorStart.transform.position;
+                Vector3 end = otherDoor.corridorStart.transform.position;
+                
+                float d = Vector3.Distance(start, end);
                 if (d > dist)
                     continue;
                 
-                Vector3 start = door.corridorStart.transform.position;
-                Vector3 end = otherDoor.corridorStart.transform.position;
-                Vector3 dir = new Vector3(
-                    end.x - start.x,
-                    end.y - start.y,
-                    end.z - start.z
-                );
-                
-                RaycastHit[] hits = Physics.RaycastAll(start, dir.normalized, dir.magnitude, 
-                    LayerMask.GetMask("Default"), QueryTriggerInteraction.Collide);
-                // bool isHittingObstacle = Physics.BoxCast(start, corridorSize, dir.normalized,
-                //      Quaternion.identity, maxDist, 
-                //      mask);
-                
-                bool isHittingObstacle = false;
-                foreach (RaycastHit hit in hits)
-                {
-                    if (hit.collider.gameObject.TryGetComponent(out RoomVolume vol) == false)
-                        continue;
-
-                    isHittingObstacle = true;
-                    break;
-                }
-                
-                if (isHittingObstacle)
+                if(CollidingWithCorridorObstacle(start, corridorPrefabSize, end - start, ~0))
                     continue;
                 
                 dist = d;
                 closest = otherDoor;
             }
         }
-        
-        if(closest == null)
+
+        if (closest == null)
             Debug.LogWarning("No closest door found");
 
-        //Debug
-        if (closest != null)
-        {
-            
-            Vector3 start = door.corridorStart.transform.position;
-            Vector3 end = closest.corridorStart.transform.position;
-            Vector3 dir = new Vector3(
-                end.x - start.x,
-                end.y - start.y,
-                end.z - start.z
-            );
-            
-            RayBis ray = new RayBis();
-            ray.origin = start;
-            ray.direction = dir;
-            _rays.Add(ray);
-        }
-        
         return closest;
     }
+
+
+    
+    
 }

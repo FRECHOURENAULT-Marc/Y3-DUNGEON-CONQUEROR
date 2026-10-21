@@ -26,7 +26,11 @@ public class RoomStyleSO : ScriptableObject
     public GameObject floorPrefab;
     public GameObject wallPrefab;
     public GameObject doorPrefab;
+    
     public GameObject corridorPrefab;
+    public GameObject stairStartPrefab;
+    public GameObject stairMiddlePrefab;
+    public GameObject stairEndPrefab;
     
     private void Reset()
     {
