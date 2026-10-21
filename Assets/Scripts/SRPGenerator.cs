@@ -1,9 +1,79 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NaughtyAttributes;
 using UnityEngine;
 using Random = UnityEngine.Random;
+
+public static class Utils {
+    /// <summary>
+    /// Shuffles the element order of the specified list.
+    /// </summary>
+    public static void Shuffle<T>(IList<T> ts) {
+        var count = ts.Count;
+        var last = count - 1;
+        for (var i = 0; i < last; ++i) {
+            var r = Random.Range(i, count);
+            (ts[i], ts[r]) = (ts[r], ts[i]);
+        }
+    }
+}
+
+// public class GenDoor1
+// {
+//     public GameObject go;
+//     public GameObject corridorStart;
+//     public bool isConnected;
+//     
+//     public GenDoor1()
+//     {
+//         isConnected = false;
+//     }
+//
+//     public void Destroy()
+//     {
+//         UnityEngine.Object.DestroyImmediate(go);
+//     }
+// }
+
+public class RayBis
+{
+    public Vector3 origin;
+    public Vector3 direction;
+}
+
+public class GenRoom
+{
+    public GameObject root;
+    public GameObject global;
+    public GameObject floor;
+    public List<GameObject> walls = new();
+    public List<GenDoor> doors = new();
+    public GameObject corridor;
+
+    public void Destroy()
+    {
+        if(root != null)
+            UnityEngine.Object.DestroyImmediate(root);
+        if(global != null)
+            UnityEngine.Object.DestroyImmediate(global);
+        if(floor != null)
+            UnityEngine.Object.DestroyImmediate(floor);
+        
+        if(walls != null)
+            SRPGenerator.DestroyObjectsInList(ref walls);
+        if (doors != null)
+        {
+            for(int i = doors.Count - 1; i >= 0; --i)
+                UnityEngine.Object.DestroyImmediate(doors[i]);
+            doors.Clear();
+        }
+        
+        if(corridor != null)
+            UnityEngine.Object.DestroyImmediate(corridor);
+    }
+}
 
 public class SRPGenerator : MonoBehaviour
 {
@@ -19,12 +89,18 @@ public class SRPGenerator : MonoBehaviour
     [SerializeField] int seed;
     [SerializeField] bool randomSeed;
     
+    List<GenRoom> _connectedRooms;
+    List<GenRoom> _validatedRooms;
+    
     List<GameObject> _finalRooms;
-    List<GameObject> _validatedRooms;
-    List<GameObject> _floors;
-    List<GameObject> _walls;
-    List<GameObject> _doors;
-    List<GameObject> _corridors;
+    //List<GameObject> _validatedRooms;
+    // List<GameObject> _floors;
+    // List<GameObject> _walls;
+    // List<GameObject> _doors;
+    // List<GameObject> _corridors;
+    
+    // Debug
+    List<RayBis> _rays = new();
 
     public int Seed { 
         get => seed;
@@ -48,11 +124,18 @@ public class SRPGenerator : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        foreach (GameObject go in _corridors)
+        foreach (var ray in _rays)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(go.transform.position, go.transform.forward * 20);
+            //Gizmos.DrawLine(Vector3.one * 10f, Vector3.one * 50f);
+            Gizmos.DrawLine(ray.origin, ray.origin + ray.direction);
         }
+        
+        // foreach (GameObject go in _corridors)
+        // {
+        //     Gizmos.color = Color.red;
+        //     Gizmos.DrawLine(go.transform.position, go.transform.forward * 20);
+        // }
     }
 
     // Generation
@@ -60,12 +143,12 @@ public class SRPGenerator : MonoBehaviour
     [Button]
     public void GenerateAllSteps()
     {
+        _rays.Clear();
+        
         ResetAll();
         GenerateRooms();
         BuildRoomsFloors();
         BuildRoomsWallsAndDoors();
-        BuildDoors();
-        
         BuildCorridors();
     }
     
@@ -84,223 +167,142 @@ public class SRPGenerator : MonoBehaviour
                 Random.Range(roomStyle.minHeight, roomStyle.maxHeight), 
                 Random.Range(roomStyle.minDepth, roomStyle.maxDepth));
             
-            GameObject room = Instantiate(roomStyle.roomPrefab, transform);
-            room.transform.position = pos;
-            room.transform.localScale = scale;
-
-            if (IsRoomValid(room) == false)
+            GenRoom nGenRoom = new ()
             {
-                DestroyImmediate(room);
+                root = Instantiate(roomStyle.rootPrefab, transform),
+            };
+            nGenRoom.global = Instantiate(roomStyle.roomPrefab, nGenRoom.root.transform);
+            
+            nGenRoom.root.transform.position = pos;
+            nGenRoom.global.transform.localScale = scale;
+            
+
+            if (IsRoomValid(nGenRoom.global) == false)
+            {
+                nGenRoom.Destroy();
                 continue;
             }
             
-            _validatedRooms.Add(room);
+            _validatedRooms.Add(nGenRoom);
         }
     }
 
     [Button]
     void BuildRoomsFloors()
     {
-        foreach (GameObject go in _validatedRooms)
+        foreach (GenRoom r in _validatedRooms)
         {
-            Vector3 offset = new Vector3(0, -go.transform.localScale.y / 2, 0);
-            GameObject floor = Instantiate(roomStyle.floorPrefab, go.transform);
-            floor.transform.position = go.transform.position + offset;
-            _floors.Add(floor);
+            r.floor = Instantiate(roomStyle.floorPrefab, r.root.transform);
+            Vector3 roomScale = r.global.transform.localScale;
+            Vector3 floorScaleFactor = r.floor.transform.localScale;
+            Vector3 offset = new Vector3(0, -r.global.transform.localScale.y / 2, 0);
+            r.floor.transform.localScale = new Vector3(
+                roomScale.x * floorScaleFactor.x,
+                roomScale.y * floorScaleFactor.y,
+                roomScale.z * floorScaleFactor.z);
+            r.floor.transform.localPosition = offset;
         }
     }
     
     [Button]
     void BuildRoomsWallsAndDoors()
     {
-        foreach (var room in _validatedRooms)
+        foreach (GenRoom r in _validatedRooms)
         {
-            Vector3 scale = new Vector3(1 / room.transform.localScale.x, 1, 1);
-            List<Vector3> offsets = new()
+            List<Vector3> sideOffset = new ()
             {
-                new Vector3(0, 0, room.transform.localScale.z/2),
-                new Vector3(0, 0, -room.transform.localScale.z/2),
-                new Vector3(room.transform.localScale.x/2, 0, 0),
-                new Vector3(-room.transform.localScale.x/2, 0, 0),
-            };            
+                new Vector3(0, 0, r.global.transform.localScale.z/2),
+                new Vector3(0, 0, -r.global.transform.localScale.z/2),
+                new Vector3(r.global.transform.localScale.x/2, 0, 0),
+                new Vector3(-r.global.transform.localScale.x/2, 0, 0),
+            };
             List<Vector3> rotations = new()
             {
+                new Vector3(0, 180, 0),
+                new Vector3(0, 0, 0),
                 new Vector3(0, 90, 0),
                 new Vector3(0, -90, 0),
-                new Vector3(0, 180, 0),
-                new Vector3(0, -180, 0),
             };
 
-            // refaire
-            List<int> allDoorIndex = new() { 0, 1, 2, 3 };
-            List<int> rdmDoorIndex = new() { Random.Range(0, allDoorIndex.Count) };
-            allDoorIndex.Remove(rdmDoorIndex[0]);
-            rdmDoorIndex.Add(Random.Range(0, allDoorIndex.Count)); 
-            //---
-            
-            for (int j = 0; j < rotations.Count; j++)
+            List<Vector3> defaultWallScales = new()
             {
-                Quaternion rotation = Quaternion.Euler(rotations[j]);
-                Vector3 offset = offsets[j];
-                float sideLength = offset.magnitude * 2;
+                new Vector3(r.global.transform.localScale.x, r.global.transform.localScale.y, 1),
+                new Vector3(r.global.transform.localScale.z, r.global.transform.localScale.y, 1),
+            };
+            
+            // choose rdm sides for doors
+            List<int> doorSideIndex = new() { 0, 1, 2, 3 };
+            Utils.Shuffle(doorSideIndex);
+            int count = Random.Range(roomStyle.minConnexion, roomStyle.maxConnexion + 1);
+            doorSideIndex = doorSideIndex.GetRange(0, count);
+            
+            // build walls for each side
+            for (int i = 0; i < sideOffset.Count; i++)
+            {
+                // scale.x with global.localScale.x and after global.transform.localScale.y
+                bool scaleFromX = i < 2;
+                Vector3 wallScale = scaleFromX ? defaultWallScales[0] : defaultWallScales[1]; 
+                Vector3 wallOffset = sideOffset[i];
+                Vector3 wallRot = rotations[i];
                 
-                if(rdmDoorIndex.Contains(j))
+                // generate 2 pieces wall and one door
+                if (doorSideIndex.Contains(i))
                 {
-                    // Create door
-                    GameObject door = Instantiate(roomStyle.doorPrefab, room.transform);
-                    door.transform.localScale = new Vector3(
-                        1 / room.transform.localScale.x, 
-                        1 / room.transform.localScale.y, 
-                        1 / room.transform.localScale.z);
+                    doorSideIndex.Remove(i);
                     
-                    float doorWidth = door.GetComponent<Collider>().bounds.size.x;
-                    doorWidth /= room.transform.lossyScale.x;
+                    // Add door
+                    GameObject doorGo = Instantiate(roomStyle.doorPrefab, r.root.transform);
+                    Vector3 doorSize = doorGo.GetComponent<Collider>().bounds.size;
+                    float doorSizeX = doorSize.x;
+                    float doorSizeY = doorSize.y;
+                    Vector3 doorOffset = new Vector3(
+                        wallOffset.x,
+                        -wallScale.y/2f + doorSizeY/2f,
+                        wallOffset.z);
+                    doorGo.transform.localPosition = doorOffset;
+                    doorGo.transform.localEulerAngles = wallRot;
+                    r.doors.Add(doorGo.GetComponent<GenDoor>());
+
+                    // Add small wall on top of the door
+                    GameObject topWall = Instantiate(roomStyle.wallPrefab, r.root.transform);
+                    Vector3 topWallScale = new Vector3(doorSizeX, wallScale.y - doorSizeY, 1f);
+                    Vector3 topWallOffset = doorOffset + new Vector3(0, doorSizeY/2f + topWallScale.y/2f, 0);
+                    topWall.transform.localScale = topWallScale;
+                    topWall.transform.localPosition = topWallOffset;
+                    topWall.transform.localEulerAngles = wallRot;
                     
-                    float segmentLength = (sideLength - doorWidth) / 2f;
-                    
-                    if (segmentLength <= 0f)
-                    {
-                        Debug.LogWarning("Door too large for this wall ("+sideLength+" - "+doorWidth+" /2 = "+segmentLength+" )");
-                        DestroyImmediate(door);
-                        return;
-                    }
-                    
-                    float distance = doorWidth / 2f + segmentLength / 2f;
-                    Debug.Log("Distance: "+distance);
-                    
+                    // Add half walls on the door's sides
                     foreach (float direction in new float[] { -1f, 1f })
                     {
-                        GameObject halfWall = Instantiate(roomStyle.wallPrefab, room.transform);
-
-                        halfWall.transform.localRotation = rotation;
-
-                        // Le mur est supposé avoir une longueur sur son axe local Z.
-                        halfWall.transform.localScale = new Vector3(
-                            1 / room.transform.localScale.x,
-                            1,
-                            1 / room.transform.localScale.z * segmentLength
-                        );
-
-                        Vector3 localOffset = offset;
-
-                        // Pour les côtés horizontaux (Z), décaler sur Z.
-                        // Pour les côtés verticaux (X), décaler sur X.
-                        if (Mathf.Abs(offset.z) > 0f)
-                        {
-                            localOffset.x += direction * distance;
-                        }
-                        else
-                        {
-                            localOffset.z += direction * distance;
-                        }
-
-                        localOffset.x /= room.transform.lossyScale.z;
-                        localOffset.z /= room.transform.lossyScale.x;
-                        Debug.Log(localOffset);
+                        GameObject halfWall = Instantiate(roomStyle.wallPrefab, r.root.transform);
+                        Vector3 halfWallScale = new Vector3(
+                            wallScale.x/2f - doorSizeX/2f, 
+                            wallScale.y, 
+                            wallScale.z);
+                        Vector3 halfWallOffset = wallOffset + direction * new Vector3(
+                            wallOffset.z != 0 ? halfWallScale.x / 2f + doorSizeX/2f : 0f,
+                            0,
+                            wallOffset.x != 0 ? halfWallScale.x / 2f + doorSizeX/2f : 0f);
                         
-                        halfWall.transform.localPosition = localOffset;
-
-                        _walls.Add(halfWall);
+                        halfWall.transform.localScale = halfWallScale;
+                        halfWall.transform.localPosition = halfWallOffset;
+                        halfWall.transform.localEulerAngles = wallRot;
+                        
+                        r.walls.Add(halfWall);
                     }
-                    
-                    // Debug.Log("Door size: " + doorWidth);
-                    // Debug.Log("Door local: " + door.transform.localScale);
-                    // Debug.Log("Door lossy: " + door.transform.lossyScale);
-                    //
-                    // bool xAxis = offset.x != 0;
-                    // bool zAxis = offset.z != 0;
-                    // _doors.Add(door);
-                    //
-                    // // create left wall (with door)
-                    // GameObject wallLeft = Instantiate(roomStyle.wallPrefab, room.transform);
-                    // wallLeft.transform.rotation = rotation;
-                    // wallLeft.transform.localScale = new Vector3(
-                    //     scale.x, 
-                    //     scale.y, 
-                    //     scale.z/2); // set scale 
-                    //
-                    // Vector3 lOffset = Vector3.zero;
-                    // if (xAxis)
-                    // {
-                    //     float wallLScaleZ = wallLeft.GetComponent<Collider>().bounds.size.z / 2;
-                    //     lOffset = new Vector3(0, 0, -wallLScaleZ/2 - doorWidth/2);
-                    // }                    
-                    // if (zAxis)
-                    // {
-                    //     float wallLScaleX = wallLeft.GetComponent<Collider>().bounds.size.x / 2;
-                    //     lOffset = new Vector3(-wallLScaleX/2 - doorWidth/2, 0, 0);
-                    // }
-                    // wallLeft.transform.position = room.transform.position + offset + lOffset;
-                    //
-                    // // create right wall (with door)  
-                    // GameObject wallRight = Instantiate(roomStyle.wallPrefab, room.transform);
-                    // wallRight.transform.rotation = rotation;
-                    // wallRight.transform.localScale = new Vector3(
-                    //     scale.x, 
-                    //     scale.y, 
-                    //     scale.z/2);
-                    //
-                    // Vector3 rOffset = Vector3.zero;
-                    // if (xAxis)
-                    // {
-                    //     float wallLScaleZ = wallLeft.GetComponent<Collider>().bounds.size.z / 2;
-                    //     rOffset = new Vector3(0, 0, wallLScaleZ/2 - doorWidth/2);
-                    // }                    
-                    // if (zAxis)
-                    // {
-                    //     float wallLScaleX = wallLeft.GetComponent<Collider>().bounds.size.x / 2;
-                    //     rOffset = new Vector3(wallLScaleX/2 - doorWidth/2, 0, 0);
-                    // }
-                    // wallRight.transform.position = room.transform.position + offset + rOffset;
-                    //
-                    // _walls.Add(wallLeft);
-                    // _walls.Add(wallRight);
                     continue;
                 }
                 
-                GameObject wall = Instantiate(roomStyle.wallPrefab, room.transform);
-                wall.transform.rotation = rotation;
-                wall.transform.position = room.transform.position + offset;
-                wall.transform.localScale = scale;
-                _walls.Add(wall);
+                // generate one piece wall
+                GameObject wall = Instantiate(roomStyle.wallPrefab, r.root.transform);
+                wall.transform.localScale = wallScale;
+                wall.transform.localPosition = wallOffset;
+                wall.transform.localEulerAngles = wallRot;
+                r.walls.Add(wall);
             }
+            
         }
-    }
-
-    [Button]
-    void BuildDoors()
-    {
-        // for (int i = 0; i < _walls.Count; i++)
-        // {
-        //     GameObject room = _validatedRooms[i];
-        //     GameObject floor = _floors[i];
-        //     List<Vector3> offset = new()
-        //     {
-        //         new Vector3(room.transform.localScale.x / 2, 0, 0),
-        //         new Vector3(-room.transform.localScale.x / 2, 0, 0),
-        //         new Vector3(0, 0, room.transform.localScale.z / 2),
-        //         new Vector3(0, 0, -room.transform.localScale.z / 2),
-        //     };
-        //     List<Vector3> rotation = new()
-        //     {
-        //         new Vector3(0, 90, 0),
-        //         new Vector3(0, -90, 0),
-        //         new Vector3(0, 180, 0),
-        //         new Vector3(0, -180, 0),
-        //     };
-        //
-        //     int rdmIndex = Random.Range(0, 4);
-        //     GameObject door = Instantiate(roomStyle.doorPrefab, room.transform);
-        //     
-        //     door.transform.localScale = new Vector3(
-        //         1/room.transform.localScale.x, 
-        //         1/room.transform.localScale.y, 
-        //         1/room.transform.localScale.z);
-        //     door.transform.position = room.transform.position + offset[rdmIndex];
-        //     door.transform.rotation = Quaternion.Euler(room.transform.rotation.eulerAngles + rotation[rdmIndex]);
-        //     
-        //     _doors.Add(door);
-        // }
+        
     }
 
     [Button]
@@ -308,26 +310,22 @@ public class SRPGenerator : MonoBehaviour
     {
         for (int i = _validatedRooms.Count - 1; i >= 0; i--)
         {
-            GameObject go = _validatedRooms[i];
+            GenRoom room = _validatedRooms[i];
+            foreach (GenDoor door in room.doors)
+            {
+                if(door.isConnected)
+                    continue;
+                GenDoor closestDoor = FindClosestDoor(room, door);
+                if(closestDoor == null)
+                    continue;
+                // create connection
+                closestDoor.isConnected = true;
+                door.isConnected = true;
+                Debug.Log("Connected 2 doors");
+            }
             
-            _finalRooms.Add(go);
-            _validatedRooms.RemoveAt(i);
-            
-            GameObject closest = FindClosestRoom(go);
-            if (closest == null)
-                continue;
-            
-            Vector3 corridorPos = new Vector3(
-                (go.transform.position.x + closest.transform.position.x) / 2, 
-                (go.transform.position.y + closest.transform.position.y) / 2, 
-                (go.transform.position.z + closest.transform.position.z) / 2);
-            GameObject corridor = Instantiate(roomStyle.corridorPrefab, transform);
-            corridor.transform.position = corridorPos;
-            corridor.transform.LookAt(go.transform.position);
-            corridor.transform.localScale = new Vector3(1, 1, Vector3.Distance(go.transform.position, closest.transform.position));
-            
-            _corridors.Add(corridor);
         }
+        
     }
     
     [Button]
@@ -359,30 +357,28 @@ public class SRPGenerator : MonoBehaviour
             Debug.LogError("Must have a room style");
             return;
         }
- 
-        _finalRooms ??= new List<GameObject>();
-        _validatedRooms ??= new List<GameObject>();
-        _floors ??= new List<GameObject>();
-        _walls ??= new List<GameObject>();
-        _doors ??= new List<GameObject>();
-        _corridors ??= new List<GameObject>();
+        
+        _connectedRooms ??= new List<GenRoom>();
+        _validatedRooms ??= new List<GenRoom>();
     }
-
-    void DestroyObjectsInList(ref List<GameObject> list)
+    
+    static public void DestroyObjectsInList(ref List<GameObject> list)
     {
         for (int i = list.Count - 1; i >= 0; i--)
             DestroyImmediate(list[i]);
+        list.Clear();
+    }    
+    static public void DestroyObjectsInList(ref List<GenRoom> list)
+    {
+        for (int i = list.Count - 1; i >= 0; i--)
+            list[i].Destroy();
         list.Clear();
     }
     
     void Clear()
     {
-        DestroyObjectsInList(ref _finalRooms);
+        DestroyObjectsInList(ref _connectedRooms);
         DestroyObjectsInList(ref _validatedRooms);
-        DestroyObjectsInList(ref _floors);
-        DestroyObjectsInList(ref _walls);
-        DestroyObjectsInList(ref _doors);
-        DestroyObjectsInList(ref _corridors);
         
         for (int i = transform.childCount - 1; i >= 0; i--)
             DestroyImmediate(transform.GetChild(i).gameObject);
@@ -391,9 +387,9 @@ public class SRPGenerator : MonoBehaviour
     bool IsRoomValid(GameObject go)
     {
         bool isValid = true;
-        foreach (GameObject valid in _validatedRooms)
+        foreach (GenRoom valid in _validatedRooms)
         {
-            if (CollidingWith(go, valid))
+            if (CollidingWith(go, valid.global))
             {
                 isValid = false;
                 break;
@@ -427,20 +423,98 @@ public class SRPGenerator : MonoBehaviour
     {
         float dist = float.MaxValue;
         GameObject closest = null;
-        foreach (var other in _validatedRooms)
+        foreach (GenRoom other in _validatedRooms)
         {
-            if(other == go)
+            if(other.root == go)
                 continue;
             
-            float d = Vector3.Distance(go.transform.position, other.transform.position);
+            float d = Vector3.Distance(go.transform.position, other.root.transform.position);
             if (d > dist)
                 continue;
             dist = d;
-            closest = other;
+            closest = other.root;
         }
         
         if(closest == null)
             Debug.LogWarning("No closest room found");
+        
+        return closest;
+    }    
+    GenDoor FindClosestDoor(GenRoom r, GenDoor door)
+    {
+        float dist = float.MaxValue;
+        GenDoor closest = null;
+        GameObject tmpCorridor = Instantiate(roomStyle.corridorPrefab);
+        Vector3 corridorSize = tmpCorridor.GetComponent<Collider>().bounds.size;
+        DestroyImmediate(tmpCorridor);
+        //Debug.Log("CorridorSize: " + corridorSize);
+        
+        foreach (GenRoom otherRoom in _validatedRooms)
+        {
+            if(otherRoom == r)
+                continue;
+            
+            foreach (GenDoor otherDoor in otherRoom.doors)
+            {
+                if(otherDoor.isConnected) 
+                    continue;
+                
+                float d = Vector3.Distance(door.transform.position, otherDoor.transform.position);
+                if (d > dist)
+                    continue;
+                
+                Vector3 start = door.corridorStart.transform.position;
+                Vector3 end = otherDoor.corridorStart.transform.position;
+                Vector3 dir = new Vector3(
+                    end.x - start.x,
+                    end.y - start.y,
+                    end.z - start.z
+                );
+                
+                RaycastHit[] hits = Physics.RaycastAll(start, dir.normalized, dir.magnitude, 
+                    LayerMask.GetMask("Default"), QueryTriggerInteraction.Collide);
+                // bool isHittingObstacle = Physics.BoxCast(start, corridorSize, dir.normalized,
+                //      Quaternion.identity, maxDist, 
+                //      mask);
+                
+                bool isHittingObstacle = false;
+                foreach (RaycastHit hit in hits)
+                {
+                    if (hit.collider.gameObject.TryGetComponent(out RoomVolume vol) == false)
+                        continue;
+
+                    isHittingObstacle = true;
+                    break;
+                }
+                
+                if (isHittingObstacle)
+                    continue;
+                
+                dist = d;
+                closest = otherDoor;
+            }
+        }
+        
+        if(closest == null)
+            Debug.LogWarning("No closest door found");
+
+        //Debug
+        if (closest != null)
+        {
+            
+            Vector3 start = door.corridorStart.transform.position;
+            Vector3 end = closest.corridorStart.transform.position;
+            Vector3 dir = new Vector3(
+                end.x - start.x,
+                end.y - start.y,
+                end.z - start.z
+            );
+            
+            RayBis ray = new RayBis();
+            ray.origin = start;
+            ray.direction = dir;
+            _rays.Add(ray);
+        }
         
         return closest;
     }

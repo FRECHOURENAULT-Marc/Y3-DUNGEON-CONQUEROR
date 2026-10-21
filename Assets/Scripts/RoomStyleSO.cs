@@ -14,9 +14,14 @@ public class RoomStyleSO : ScriptableObject
     [Range(0, 100)] public int maxHeight;
     
     [Header("Padding (spacing between rooms)")]
-    [Range(0, 10)] public int padding;
+    [Range(0, 10)] public int padding;    
+    
+    [Header("Connexion with other rooms")]
+    [Range(0, 4)] public int maxConnexion;
+    [Range(0, 4)] public int minConnexion;
     
     [Header("Prefabs")]
+    public GameObject rootPrefab;
     public GameObject roomPrefab;
     public GameObject floorPrefab;
     public GameObject wallPrefab;
@@ -26,6 +31,8 @@ public class RoomStyleSO : ScriptableObject
     private void Reset()
     {
         padding = 1;
+        maxConnexion = 3;
+        minConnexion = 2;
         
         minWidth = 8;
         maxWidth = 32; 
