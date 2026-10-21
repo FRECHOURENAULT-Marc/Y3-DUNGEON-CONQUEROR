@@ -1,0 +1,45 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+public class HealthController : MonoBehaviour
+{
+
+    [Header("Health Setting")]
+    [SerializeField] float _maxHealth;
+    [SerializeField] float _currentHealth;
+
+    [Header("Referances")]
+    [SerializeField] Slider _healthBarSlider;
+
+
+    public float CurrentHealth { get => _currentHealth; }
+
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        // Set min max on slider
+        _healthBarSlider.maxValue = _maxHealth;
+        _healthBarSlider.minValue = 0;
+
+        // Set the current health value
+        _currentHealth = _maxHealth;
+        _healthBarSlider.value = _currentHealth;
+    }
+
+
+    public void GetAttacked(float dmg)
+    {
+        Debug.Log($"Getting attacked (-{dmg} health)");
+
+        if ( dmg < 0 )
+            return;
+
+        if ( _currentHealth - dmg < 0 )
+            _currentHealth = 0;
+        else
+            _currentHealth -= dmg;
+        
+        _healthBarSlider.value = _currentHealth;
+    }
+}

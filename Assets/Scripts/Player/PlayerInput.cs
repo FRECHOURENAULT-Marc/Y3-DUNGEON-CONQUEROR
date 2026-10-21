@@ -60,7 +60,7 @@ public class PlayerInput : MonoBehaviour
 
         _lookAction.action.performed -= HandleLook;
         _sprintAction.action.performed -= HandleSprint;
-        _sprintAction.action.canceled += HandleSprintCanceled;
+        _sprintAction.action.canceled -= HandleSprintCanceled;
     }
 
     private void HandleMove(InputAction.CallbackContext context)
