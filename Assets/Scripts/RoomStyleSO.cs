@@ -28,9 +28,7 @@ public class RoomStyleSO : ScriptableObject
     public GameObject doorPrefab;
     
     public GameObject corridorPrefab;
-    public GameObject stairStartPrefab;
-    public GameObject stairMiddlePrefab;
-    public GameObject stairEndPrefab;
+    // may do a connected corridor-door material/prefab
     
     private void Reset()
     {

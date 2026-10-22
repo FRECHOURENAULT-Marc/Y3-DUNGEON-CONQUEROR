@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class GenDoor : MonoBehaviour
+public class SRPDoorData : MonoBehaviour
 {
     public GameObject corridorStart;
     public bool isConnected;

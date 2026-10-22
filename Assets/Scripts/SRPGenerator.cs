@@ -6,33 +6,13 @@ using NaughtyAttributes;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public static class Utils {
-    /// <summary>
-    /// Shuffles the element order of the specified list.
-    /// </summary>
-    public static void Shuffle<T>(IList<T> ts) {
-        var count = ts.Count;
-        var last = count - 1;
-        for (var i = 0; i < last; ++i) {
-            var r = Random.Range(i, count);
-            (ts[i], ts[r]) = (ts[r], ts[i]);
-        }
-    }
-}
-
-public class RayBis
-{
-    public Vector3 origin;
-    public Vector3 direction;
-}
-
-public class GenRoom
+public class SRPRoomData
 {
     public GameObject root;
     public GameObject global;
     public GameObject floor;
     public List<GameObject> walls = new();
-    public List<GenDoor> doors = new();
+    public List<SRPDoorData> doors = new();
     public List<GameObject> corridors = new();
 
     public void Destroy()
@@ -53,9 +33,14 @@ public class GenRoom
                 UnityEngine.Object.DestroyImmediate(doors[i]);
             doors.Clear();
         }
-        
-        if(corridors != null)
-            SRPGenerator.DestroyObjectsInList(ref corridors);;
+
+        if (corridors != null)
+        {
+            foreach (var go in corridors)
+                UnityEngine.Object.DestroyImmediate(go.GetComponent<MeshFilter>()?.sharedMesh);
+            SRPGenerator.DestroyObjectsInList(ref corridors);
+        }
+            
     }
 }
 
@@ -73,13 +58,13 @@ public class SRPGenerator : MonoBehaviour
     [SerializeField] int seed;
     [SerializeField] bool randomSeed;
     
-    List<GenRoom> _connectedRooms;
-    List<GenRoom> _validatedRooms;
+    List<SRPRoomData> _connectedRooms;
+    List<SRPRoomData> _validatedRooms;
     
     List<GameObject> _finalRooms;
     
     // Debug
-    List<RayBis> _rays = new();
+    List<RayData> _rays = new();
     List<Bounds> _boxs = new();
 
     public int Seed { 
@@ -141,30 +126,30 @@ public class SRPGenerator : MonoBehaviour
                 Random.Range(roomStyle.minHeight, roomStyle.maxHeight), 
                 Random.Range(roomStyle.minDepth, roomStyle.maxDepth));
             
-            GenRoom nGenRoom = new ()
+            SRPRoomData nSrpRoomData = new ()
             {
                 root = Instantiate(roomStyle.rootPrefab, transform),
             };
-            nGenRoom.global = Instantiate(roomStyle.roomPrefab, nGenRoom.root.transform);
+            nSrpRoomData.global = Instantiate(roomStyle.roomPrefab, nSrpRoomData.root.transform);
             
-            nGenRoom.root.transform.position = pos;
-            nGenRoom.global.transform.localScale = scale;
+            nSrpRoomData.root.transform.position = pos;
+            nSrpRoomData.global.transform.localScale = scale;
             
 
-            if (IsRoomValid(nGenRoom.global) == false)
+            if (IsRoomValid(nSrpRoomData.global) == false)
             {
-                nGenRoom.Destroy();
+                nSrpRoomData.Destroy();
                 continue;
             }
             
-            _validatedRooms.Add(nGenRoom);
+            _validatedRooms.Add(nSrpRoomData);
         }
     }
 
     [Button]
     void BuildRoomsFloors()
     {
-        foreach (GenRoom r in _validatedRooms)
+        foreach (SRPRoomData r in _validatedRooms)
         {
             r.floor = Instantiate(roomStyle.floorPrefab, r.root.transform);
             Vector3 roomScale = r.global.transform.localScale;
@@ -181,7 +166,7 @@ public class SRPGenerator : MonoBehaviour
     [Button]
     void BuildRoomsWallsAndDoors()
     {
-        foreach (GenRoom r in _validatedRooms)
+        foreach (SRPRoomData r in _validatedRooms)
         {
             List<Vector3> sideOffset = new ()
             {
@@ -235,7 +220,7 @@ public class SRPGenerator : MonoBehaviour
                         wallOffset.z);
                     doorGo.transform.localPosition = doorOffset;
                     doorGo.transform.localEulerAngles = wallRot;
-                    r.doors.Add(doorGo.GetComponent<GenDoor>());
+                    r.doors.Add(doorGo.GetComponent<SRPDoorData>());
 
                     // Add small wall on top of the door
                     GameObject topWall = Instantiate(roomStyle.wallPrefab, r.root.transform);
@@ -290,8 +275,8 @@ public class SRPGenerator : MonoBehaviour
     {
         for (int i = _validatedRooms.Count - 1; i >= 0; i--)
         {
-            GenRoom room = _validatedRooms[i];
-            foreach (GenDoor door in room.doors)
+            SRPRoomData roomData = _validatedRooms[i];
+            foreach (SRPDoorData door in roomData.doors)
             {
                 if(door.isConnected)
                     continue;
@@ -299,25 +284,29 @@ public class SRPGenerator : MonoBehaviour
                 // Faire un path finding dans une grid ?
                 // Faire un mesh de liaison door1 - corridor - door2 ?
                 
-                GenDoor closestDoor = FindClosestDoor(room, door);
-                if(closestDoor == null)
+                SRPDoorData closestDoorData = FindClosestDoor(roomData, door);
+                if(closestDoorData == null)
                     continue;
                 
                 door.isConnected = true;
-                closestDoor.isConnected = true;
+                closestDoorData.isConnected = true;
                 
                 // main corridor
                 Vector3 start = door.corridorStart.transform.position;
-                Vector3 end = closestDoor.corridorStart.transform.position;
+                Vector3 end = closestDoorData.corridorStart.transform.position;
                 float scaleZ = Vector3.Distance(start, end);
-                GameObject corridor = Instantiate(roomStyle.corridorPrefab, room.root.transform);
+                GameObject corridor = Instantiate(roomStyle.corridorPrefab, roomData.root.transform);
                 corridor.transform.position = new Vector3(
                     (start.x + end.x) / 2f, 
                     (start.y + end.y) / 2f, 
                     (start.z + end.z) / 2f);
                 corridor.transform.LookAt(end);
                 corridor.transform.localScale = new Vector3(1, 1, scaleZ);
-                room.corridors.Add(corridor);
+                roomData.corridors.Add(corridor);
+                
+                // Liaison porte <-> couloir aux deux extrémités
+                BuildDoorLink(roomData, door, corridor);
+                BuildDoorLink(roomData, closestDoorData, corridor);
                 
             }
         }
@@ -352,8 +341,8 @@ public class SRPGenerator : MonoBehaviour
             return;
         }
         
-        _connectedRooms ??= new List<GenRoom>();
-        _validatedRooms ??= new List<GenRoom>();
+        _connectedRooms ??= new List<SRPRoomData>();
+        _validatedRooms ??= new List<SRPRoomData>();
     }
     
     static public void DestroyObjectsInList(ref List<GameObject> list)
@@ -362,7 +351,7 @@ public class SRPGenerator : MonoBehaviour
             DestroyImmediate(list[i]);
         list.Clear();
     }    
-    static public void DestroyObjectsInList(ref List<GenRoom> list)
+    static public void DestroyObjectsInList(ref List<SRPRoomData> list)
     {
         for (int i = list.Count - 1; i >= 0; i--)
             list[i].Destroy();
@@ -384,7 +373,7 @@ public class SRPGenerator : MonoBehaviour
     bool IsRoomValid(GameObject go)
     {
         bool isValid = true;
-        foreach (GenRoom valid in _validatedRooms)
+        foreach (SRPRoomData valid in _validatedRooms)
         {
             if (CollidingWith(go, valid.global))
             {
@@ -436,26 +425,24 @@ public class SRPGenerator : MonoBehaviour
         return false;
     }
     
-    GenDoor FindClosestDoor(GenRoom r, GenDoor door)
+    SRPDoorData FindClosestDoor(SRPRoomData r, SRPDoorData doorData)
     {
         float dist = float.MaxValue;
-        GenDoor closest = null;
+        SRPDoorData closest = null;
         // get the corridor dimensions
-        GameObject tmpCorridor = Instantiate(roomStyle.corridorPrefab);
-        Vector3 corridorPrefabSize = tmpCorridor.GetComponent<Collider>().bounds.size;
-        DestroyImmediate(tmpCorridor);
+        Vector3 corridorPrefabSize = Utils.GetWorldSize(roomStyle.corridorPrefab.GetComponent<Collider>());
         
-        foreach (GenRoom otherRoom in _validatedRooms)
+        foreach (SRPRoomData otherRoom in _validatedRooms)
         {
             if(otherRoom == r)
                 continue;
             
-            foreach (GenDoor otherDoor in otherRoom.doors)
+            foreach (SRPDoorData otherDoor in otherRoom.doors)
             {
                 if(otherDoor.isConnected) 
                     continue;
                 
-                Vector3 start = door.corridorStart.transform.position;
+                Vector3 start = doorData.corridorStart.transform.position;
                 Vector3 end = otherDoor.corridorStart.transform.position;
                 
                 float d = Vector3.Distance(start, end);
@@ -475,8 +462,75 @@ public class SRPGenerator : MonoBehaviour
 
         return closest;
     }
-
-
     
-    
+    /// <summary>
+    /// Create a GameObject that links door (door.corridorStart) and main corridor
+    /// The GameObject get a custom mesh of 4 quads (plans)
+    /// </summary>
+    void BuildDoorLink(SRPRoomData roomData, SRPDoorData doorData, GameObject corridor)
+    {
+        Collider doorCol = doorData.GetComponent<Collider>();
+        if (doorCol == null) return;
+
+        // Dimensions 
+        Vector3 doorSize = Utils.GetWorldSize(doorCol);
+        Vector3 corridorSize = Utils.GetWorldSize(roomStyle.corridorPrefab.GetComponent<Collider>());
+
+        // Door 
+        Vector3 doorCenter = doorCol.bounds.center;
+        Vector3 doorRight = doorData.transform.right;
+        Vector3 doorUp = doorData.transform.up;
+
+        // Corridor
+        Vector3 corridorCenter = doorData.corridorStart.transform.position;
+        Vector3 corridorRight = corridor.transform.right;
+        Vector3 corridorUp = corridor.transform.up;
+        // Align axis on door axis to keep rotation
+        if (Vector3.Dot(corridorRight, doorRight) < 0f) corridorRight = -corridorRight;
+        if (Vector3.Dot(corridorUp, doorUp) < 0f) corridorUp = -corridorUp;
+
+        // bottom-left, bottom-right, top-right, top-left
+        Vector3[] d = Utils.GetRectCorners(doorCenter, doorRight, doorUp, doorSize.x, doorSize.y);
+        Vector3[] c = Utils.GetRectCorners(corridorCenter, corridorRight, corridorUp, corridorSize.x, corridorSize.y);
+
+        // Build mesh (room.root local space)
+        List<Vector3> vertices = new();
+        List<int> triangles = new();
+        // Build 4 quads
+        for (int i = 0; i < 4; i++)
+        {
+            int next = (i + 1) % 4;
+            // i=0 : bot
+            // i=1 : right
+            // i=2 : top
+            // i=3 : left
+            // Build a quad
+            Utils.AddQuad(vertices, triangles, roomData.root.transform,
+                d[i], d[next], c[next], c[i],
+                doubleSided: false);
+        }
+
+        // Set up the new Mesh
+        Mesh linkMesh = new Mesh { name = "DoorLinkMesh" };
+        linkMesh.SetVertices(vertices);
+        linkMesh.SetTriangles(triangles, 0);
+        linkMesh.RecalculateNormals();
+        linkMesh.RecalculateBounds();
+        // And the Go
+        GameObject linkGo = new GameObject("DoorLink");
+        linkGo.transform.SetParent(roomData.root.transform, false);
+        linkGo.AddComponent<MeshFilter>().sharedMesh = linkMesh;
+
+        // Take corridor Material for the Mesh Renderer (temp)
+        MeshRenderer corridorRenderer = roomStyle.corridorPrefab.GetComponentInChildren<MeshRenderer>();
+        MeshRenderer linkMeshR = linkGo.AddComponent<MeshRenderer>();
+        if (corridorRenderer != null)
+            linkMeshR.sharedMaterial = corridorRenderer.sharedMaterial;
+        // Mesh Collider
+        MeshCollider linkMeshCol = linkGo.AddComponent<MeshCollider>();
+        linkMeshCol.sharedMesh = linkMesh;
+        linkMeshCol.convex = false; // corridor = open / not close --> not convex (im not sure if it's by default false)
+        
+        roomData.corridors.Add(linkGo);
+    }
 }
