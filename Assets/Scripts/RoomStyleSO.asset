@@ -17,7 +17,7 @@ MonoBehaviour:
   minDepth: 32
   maxDepth: 64
   minHeight: 4
-  maxHeight: 16
+  maxHeight: 12
   padding: 1
   maxConnexion: 3
   minConnexion: 2
@@ -27,6 +27,3 @@ MonoBehaviour:
   wallPrefab: {fileID: 4715274132501412591, guid: 7481f8bd55c2eae49839733bdf5e1e84, type: 3}
   doorPrefab: {fileID: 8920135381559222656, guid: 7f2d07c37e0074346b3b67ddb9b8b867, type: 3}
   corridorPrefab: {fileID: 6332543688718896247, guid: f20ffc6ebf70bd94996020c9abaecf55, type: 3}
-  stairStartPrefab: {fileID: 6332543688718896247, guid: f024452487603c6479f28d0f4c4b46c7, type: 3}
-  stairMiddlePrefab: {fileID: 6332543688718896247, guid: 4ab5942b54724394382cf359c8552930, type: 3}
-  stairEndPrefab: {fileID: 6332543688718896247, guid: f024452487603c6479f28d0f4c4b46c7, type: 3}

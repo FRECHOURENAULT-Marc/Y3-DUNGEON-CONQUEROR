@@ -37,7 +37,10 @@ public class SRPRoomData
         if (corridors != null)
         {
             foreach (var go in corridors)
+            {
+                if(go == null) continue;
                 UnityEngine.Object.DestroyImmediate(go.GetComponent<MeshFilter>()?.sharedMesh);
+            }
             SRPGenerator.DestroyObjectsInList(ref corridors);
         }
             

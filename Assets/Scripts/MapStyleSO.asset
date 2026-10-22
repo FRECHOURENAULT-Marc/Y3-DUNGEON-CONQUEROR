@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MapStyleSO
   width: 500
   depth: 500
-  height: 50
+  height: 10
