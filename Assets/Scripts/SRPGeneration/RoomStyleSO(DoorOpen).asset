@@ -19,8 +19,8 @@ MonoBehaviour:
   minHeight: 4
   maxHeight: 12
   padding: 1
-  maxConnexion: 3
-  minConnexion: 2
+  maxConnexion: 4
+  minConnexion: 4
   rootPrefab: {fileID: 6898280803308112363, guid: 8f8131860b3524247a57c759e53add0a, type: 3}
   roomPrefab: {fileID: 6375341226810107106, guid: 62695da1b92cde7409a1d632d95f6943, type: 3}
   floorPrefab: {fileID: 4715274132501412591, guid: 3d9fe352f14f3394fa1e77d52bac0c49, type: 3}

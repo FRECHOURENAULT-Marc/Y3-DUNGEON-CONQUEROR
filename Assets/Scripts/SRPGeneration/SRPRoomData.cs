@@ -8,39 +8,25 @@ public class SRPRoomData
     public GameObject global;
     public GameObject floor;
     public List<GameObject> walls = new();
-    public List<SRPDoorData> doors = new();
+    public List<GameObject> doors = new();
     public List<GameObject> corridors = new();
-    
-    public List<SRPRoomData> neighbors = new();
-    
-    public bool isGenerated = false;
-
-    public void RefreshNeighbors()
-    {
-        for (int i = neighbors.Count - 1; i >= 0; --i)
-        {
-            if (neighbors[i] != null)
-                continue;
-            neighbors.RemoveAt(i);
-        }
-    }
     
     public void Destroy()
     {
         if(root != null)
-            UnityEngine.Object.DestroyImmediate(root);
+            Utils.Destroy(root);
         if(global != null)
-            UnityEngine.Object.DestroyImmediate(global);
+            Utils.Destroy(global);
         if(floor != null)
-            UnityEngine.Object.DestroyImmediate(floor);
+            Utils.Destroy(floor);
         
         if(walls != null)
-            SRPGenerator.DestroyObjectsInList(ref walls);
+            Utils.DestroyObjectsInList(ref walls);
         
         if (doors != null)
         {
             for(int i = doors.Count - 1; i >= 0; --i)
-                UnityEngine.Object.DestroyImmediate(doors[i]);
+                Utils.Destroy(doors[i]);
             doors.Clear();
         }
 
@@ -49,9 +35,9 @@ public class SRPRoomData
             foreach (var go in corridors)
             {
                 if(go == null) continue;
-                UnityEngine.Object.DestroyImmediate(go.GetComponent<MeshFilter>()?.sharedMesh);
+                Utils.Destroy(go.GetComponent<MeshFilter>()?.sharedMesh);
             }
-            SRPGenerator.DestroyObjectsInList(ref corridors);
+            Utils.DestroyObjectsInList(ref corridors);
         }
             
     }

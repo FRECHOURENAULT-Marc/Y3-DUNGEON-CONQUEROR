@@ -6,9 +6,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
+using Object = System.Object;
 using Random = UnityEngine.Random;
 
 public static class Utils {
+
+    /// <summary>
+    /// Destroy a UnityEngine.Object depends on Application.isPlaying
+    /// Do Destroy or DestroyImmediate
+    /// </summary>
+    public static void Destroy(UnityEngine.Object obj)
+    {
+        if(Application.isPlaying)
+            UnityEngine.Object.Destroy(obj);
+        else
+            UnityEngine.Object.DestroyImmediate(obj);
+    }
+    
     /// <summary>
     /// Shuffles the element order of the specified list.
     /// </summary>
@@ -20,6 +34,26 @@ public static class Utils {
             (ts[i], ts[r]) = (ts[r], ts[i]);
         }
     }
+    
+    /// <summary>
+    /// Destroy (Immediate) all GameObjects in the list
+    /// </summary>
+    static public void DestroyObjectsInList(ref List<GameObject> list)
+    {
+        for (int i = list.Count - 1; i >= 0; i--)
+            Utils.Destroy(list[i]);
+        list.Clear();
+    }  
+    
+    /// <summary>
+    /// Destroy all SRPRoomData in the list
+    /// </summary>
+    static public void DestroyObjectsInList(ref List<SRPRoomData> list)
+    {
+        for (int i = list.Count - 1; i >= 0; i--)
+            list[i].Destroy();
+        list.Clear();
+    }   
     
     /// <summary>
     /// Get edges of a rect
@@ -79,12 +113,15 @@ public static class Utils {
 
         return col.bounds.size;
     }
-
-
+    
     public static async Task<bool> WaitOneAsyncFrame(CancellationTokenSource cs, Action task = null)
     {
         return await WaitOneAsyncFrame(cs.Token, task);
     }
+    /// <summary>
+    /// Wait for one async frame
+    /// </summary>
+    /// <returns>return false if cancel with token, otherwise true</returns>
     public static async Task<bool> WaitOneAsyncFrame(CancellationToken token = default, Action task = null)
     {
         await Awaitable.NextFrameAsync(token);
