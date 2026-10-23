@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -76,6 +78,21 @@ public static class Utils {
         }
 
         return col.bounds.size;
+    }
+
+
+    public static async Task<bool> WaitOneAsyncFrame(CancellationTokenSource cs, Action task = null)
+    {
+        return await WaitOneAsyncFrame(cs.Token, task);
+    }
+    public static async Task<bool> WaitOneAsyncFrame(CancellationToken token = default, Action task = null)
+    {
+        await Awaitable.NextFrameAsync(token);
+        if (token.IsCancellationRequested)
+            return false;
+        
+        task?.Invoke();
+        return true;
     }
 }
 
