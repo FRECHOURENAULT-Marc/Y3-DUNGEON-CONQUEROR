@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -55,12 +56,15 @@ public class SRPGenerator : MonoBehaviour
     [Header("Map Style")]
     [SerializeField] MapStyleSO mapStyle;
     [Range(0, 1000)] 
-    [SerializeField] int tries;
+    [SerializeField] int maxTries;    
+    [Range(0, 1000)] 
+    [SerializeField] int target;
 
     [Header("Seed")] 
     [SerializeField] int seed;
     [SerializeField] bool randomSeed;
     
+    int triesCount;
     List<SRPRoomData> _connectedRooms;
     List<SRPRoomData> _validatedRooms;
     
@@ -83,7 +87,8 @@ public class SRPGenerator : MonoBehaviour
     
     private void Reset()
     {
-        tries = 100;
+        maxTries = 100;
+        target = 10;
         
         seed = 0;
         randomSeed = true;
@@ -103,13 +108,23 @@ public class SRPGenerator : MonoBehaviour
     // Generation
 
     [Button]
-    public void GenerateAllSteps()
+    public async void GenerateAllSteps()
     {
         ResetAll();
-        GenerateRooms();
-        BuildRoomsFloors();
-        BuildRoomsWallsAndDoors();
-        BuildCorridorsAsync();
+
+        int control = 0; // ensure no infinite loop
+        while (triesCount < maxTries && _validatedRooms.Count < target && control < 1000)
+        {
+            GenerateRooms();
+            BuildRoomsFloors();
+            BuildRoomsWallsAndDoors();
+            await BuildCorridorsAsync();
+            // Destroy room not connected
+            RemoveUnConnectedRooms();
+            // need to check if rooms can reach startRoom and endRoom
+            control++;
+        }
+        Debug.Log("triesCount: " + triesCount + " rooms: " + _validatedRooms.Count + " control var: "+ 1000);
     }
     
     [Button]
@@ -117,7 +132,7 @@ public class SRPGenerator : MonoBehaviour
     {
         InitSeed();
         
-        for (int i = 0; i < tries; i++)
+        for (int i = 0; triesCount < maxTries && _validatedRooms.Count < target; i++)
         {
             Vector3 offest = new Vector3(
                 (int)Math.Round(Random.Range(-mapStyle.width, mapStyle.width) / 2.0f), 
@@ -146,6 +161,7 @@ public class SRPGenerator : MonoBehaviour
             }
             
             _validatedRooms.Add(nSrpRoomData);
+            triesCount++;
         }
     }
 
@@ -267,7 +283,7 @@ public class SRPGenerator : MonoBehaviour
         
     }
 
-    async void BuildCorridorsAsync()
+    async Task BuildCorridorsAsync()
     {
         await Awaitable.NextFrameAsync();
         BuildCorridors();
@@ -291,12 +307,25 @@ public class SRPGenerator : MonoBehaviour
                 if(closestDoorData == null)
                     continue;
                 
+                Vector3 start = door.corridorStart.transform.position;
+                Vector3 end = closestDoorData.corridorStart.transform.position;
+                
+                // Maximum Angle difference between corridor and door
+                Vector3 dirToOther = (end - start).normalized;
+                // x : Acos(x) * Mathf.Rad2Deg;
+                // 0.7f : 45° max
+                // 0.5f : 60° max
+                // 0.3f : 72° max
+                // 0.0f : 90° max
+                if (Vector3.Dot(GetDoorOutward(door), dirToOther) < 0.7f) continue;       
+                if (Vector3.Dot(GetDoorOutward(closestDoorData), -dirToOther) < 0.7f) continue;
+                
                 door.isConnected = true;
                 closestDoorData.isConnected = true;
                 
+                Debug.Log("Room CONNECTED !");
+                
                 // main corridor
-                Vector3 start = door.corridorStart.transform.position;
-                Vector3 end = closestDoorData.corridorStart.transform.position;
                 float scaleZ = Vector3.Distance(start, end);
                 GameObject corridor = Instantiate(roomStyle.corridorPrefab, roomData.root.transform);
                 corridor.transform.position = new Vector3(
@@ -307,11 +336,32 @@ public class SRPGenerator : MonoBehaviour
                 corridor.transform.localScale = new Vector3(1, 1, scaleZ);
                 roomData.corridors.Add(corridor);
                 
-                // Liaison porte <-> couloir aux deux extrémités
+                // Link doors <-> corridor edges
                 BuildDoorLink(roomData, door, corridor);
                 BuildDoorLink(roomData, closestDoorData, corridor);
-                
             }
+        }
+    }
+
+    [Button]
+    void RemoveUnConnectedRooms()
+    {
+        for (int i = _validatedRooms.Count - 1; i >= 0; i--)
+        {
+            SRPRoomData room = _validatedRooms[i];
+            bool isConnected = false;
+            foreach (SRPDoorData door in room.doors)
+            {
+                if (door.isConnected == false)
+                    continue;
+                isConnected = true;
+                break;
+            }
+
+            if (isConnected)
+                continue;
+            _validatedRooms[i].Destroy();
+            _validatedRooms.RemoveAt(i);
         }
     }
     
@@ -365,6 +415,8 @@ public class SRPGenerator : MonoBehaviour
     {
         _rays.Clear(); // debug
         _boxs.Clear(); // debug
+
+        triesCount = 0;
         
         DestroyObjectsInList(ref _connectedRooms);
         DestroyObjectsInList(ref _validatedRooms);
@@ -464,6 +516,17 @@ public class SRPGenerator : MonoBehaviour
             Debug.LogWarning("No closest door found");
 
         return closest;
+    }
+    
+    /// <summary>Horizontal direction of the door exit (going to corridorStart).</summary>
+    static Vector3 GetDoorOutward(SRPDoorData door)
+    {
+        Vector3 center = door.GetComponent<Collider>().bounds.center;
+        Vector3 a = door.transform.forward;
+        if (Vector3.Dot(a, door.corridorStart.transform.position - center) < 0f)
+            a = -a;
+        a.y = 0f;
+        return a.normalized;
     }
     
     /// <summary>

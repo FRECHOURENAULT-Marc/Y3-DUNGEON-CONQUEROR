@@ -4,7 +4,7 @@ using UnityEngine;
 public class SRPDoorData : MonoBehaviour
 {
     public GameObject corridorStart;
-    public bool isConnected;
+    public bool isConnected; // Change by SRPRoom connected with
 
     private void Reset()
     {
