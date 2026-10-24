@@ -21,21 +21,24 @@ public class SRPRoomData
             Utils.Destroy(floor);
         
         if(walls != null)
-            Utils.DestroyObjectsInList(ref walls);
+            Utils.DestroyObjectsInList(ref walls);        
+        if(doors != null)
+            Utils.DestroyObjectsInList(ref doors);
         
-        if (doors != null)
-        {
-            for(int i = doors.Count - 1; i >= 0; --i)
-                Utils.Destroy(doors[i]);
-            doors.Clear();
-        }
+        // if (doors != null)
+        // {
+        //     for(int i = doors.Count - 1; i >= 0; --i)
+        //         Utils.Destroy(doors[i]);
+        //     doors.Clear();
+        // }
 
         if (corridors != null)
         {
             foreach (var go in corridors)
             {
                 if(go == null) continue;
-                Utils.Destroy(go.GetComponent<MeshFilter>()?.sharedMesh);
+                if (go.TryGetComponent(out MeshFilter sharedMesh) == false) continue;
+                Utils.Destroy(sharedMesh);
             }
             Utils.DestroyObjectsInList(ref corridors);
         }

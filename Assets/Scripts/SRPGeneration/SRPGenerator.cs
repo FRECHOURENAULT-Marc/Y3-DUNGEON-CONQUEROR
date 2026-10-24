@@ -27,6 +27,7 @@ public class SRPGenerator : MonoBehaviour
     
     CancellationTokenSource _cs;
     List<SRPRoomData> _generatedRooms;
+    List<SRPRoomData> _uselessRooms;
     List<SRPRoomData> _validatedRooms;
     
     // Debug
@@ -75,31 +76,40 @@ public class SRPGenerator : MonoBehaviour
     [Button]
     public async Task GenerateAllSteps()
     {
+        double startTime = Time.time;
+        
         ResetAll();
         InitSeed();
-
-        Debug.Log("Generation started...");
+        
+        double resetDt = Time.time - startTime; // Debug
+        Debug.Log("Generation started..."); // Debug
         
         GenerateRooms();
+        
+        double genRoomDt = Time.time - startTime - resetDt; // Debug
+        
         BuildRooms();
+        
+        double buildRoomDt = Time.time - startTime - resetDt - genRoomDt; // Debug
 
-        // wait physics update
+        // wait physics update (rework without physics ? like obb class)
         await Awaitable.WaitForSecondsAsync(Time.fixedDeltaTime, _cs.Token);
         if (_cs.IsCancellationRequested)
             return;
         
-        // Add first room 
-        FromGeneratedToValidate(_generatedRooms[0]);
+        FromGeneratedToValidate(_generatedRooms[0]); // Add first room 
         BuildCorridors();
+        
+        double buildCorridorDt = Time.time - startTime - resetDt - genRoomDt - buildRoomDt - Time.fixedDeltaTime; // Debug
         
         RemoveNotConnectedRooms(); // Destroy room not connected
         ReplaceNotConnectedDoors(); // Replace useless doors by walls
         
-        Debug.Log("Generation ended.");
+        // Debug
+        double cleanDt = Time.time - startTime - resetDt - genRoomDt - buildRoomDt - Time.fixedDeltaTime - buildCorridorDt;
+        Debug.Log("Generation ended (total time: " + (Time.time - startTime) + ")");
+        Debug.Log("Reset Time: " + resetDt + " GenTime: " + genRoomDt + " BuildRTime: " + buildRoomDt + " BuildCTime: " + buildCorridorDt + " CleanTime: " + cleanDt);
         Debug.Log("Rooms: " + _validatedRooms.Count + "/"+target);
-
-        if (await Utils.WaitOneAsyncFrame() == false)
-            return;
         
         // check if all rooms have one door used
         foreach (SRPRoomData r in _validatedRooms)
@@ -211,6 +221,8 @@ public class SRPGenerator : MonoBehaviour
                 new Vector3(r.global.transform.localScale.z, r.global.transform.localScale.y, 1),
             };
             
+            Vector3 doorSize = Utils.GetWorldSize(roomStyle.doorPrefab.GetComponent<Collider>());
+            
             // choose rdm sides for doors
             List<int> doorSideIndex = new() { 0, 1, 2, 3 };
             Utils.Shuffle(doorSideIndex);
@@ -233,7 +245,7 @@ public class SRPGenerator : MonoBehaviour
                     
                     // Add door
                     GameObject doorGo = Instantiate(roomStyle.doorPrefab, r.root.transform);
-                    Vector3 doorSize = doorGo.GetComponent<Collider>().bounds.size;
+                    //Vector3 doorSize = doorGo.GetComponent<Collider>().bounds.size;
                     float doorSizeX = doorSize.x;
                     float doorSizeY = doorSize.y;
                     Vector3 doorOffset = new Vector3(
@@ -285,7 +297,6 @@ public class SRPGenerator : MonoBehaviour
                 r.walls.Add(wall);
             }
         }
-        
     }
     
     [Button]
@@ -296,8 +307,14 @@ public class SRPGenerator : MonoBehaviour
         
         for (int i = _generatedRooms.Count - 1; i >= 0; i--)
         {
+            // If target reached, stop generating corridor and remove remaining rooms
             if (_validatedRooms.Count >= target)
+            {
+                for(int j = i; j >= 0; j--)
+                    FromGeneratedToUseless(_generatedRooms[j]);
                 break;
+            }
+                
             
             SRPRoomData roomData = _generatedRooms[i];
             foreach (GameObject doorGo in roomData.doors)
@@ -349,12 +366,20 @@ public class SRPGenerator : MonoBehaviour
             if (_validatedRooms.Contains(roomData))
                 continue;
             
-            // room is not connected, remove it from world to let other have enough space
-            _generatedRooms[i].Destroy();
+            // room cannot be connected, remove it to avoid useless computations in next checks
+            // _generatedRooms[i].Destroy();
+            _uselessRooms.Add(roomData);
             _generatedRooms.RemoveAt(i);
         }
     }
 
+    [Button]
+    void RemoveNotConnectedRooms()
+    {
+        //Utils.DestroyObjectsInList(ref _generatedRooms);
+        Utils.DestroyObjectsInList(ref _uselessRooms);
+    }
+    
     [Button]
     void ReplaceNotConnectedDoors()
     {
@@ -407,11 +432,7 @@ public class SRPGenerator : MonoBehaviour
         }
     }
     
-    [Button]
-    void RemoveNotConnectedRooms()
-    {
-        Utils.DestroyObjectsInList(ref _generatedRooms);
-    }
+
     
     [Button]
     void ResetAll()
@@ -437,6 +458,7 @@ public class SRPGenerator : MonoBehaviour
         
         _generatedRooms ??= new List<SRPRoomData>();
         _validatedRooms ??= new List<SRPRoomData>();
+        _uselessRooms ??= new List<SRPRoomData>();
 
         _cs ??= new CancellationTokenSource();
     }
@@ -451,9 +473,7 @@ public class SRPGenerator : MonoBehaviour
         
         Utils.DestroyObjectsInList(ref _generatedRooms);
         Utils.DestroyObjectsInList(ref _validatedRooms);
-        
-        _generatedRooms.Clear();
-        _validatedRooms.Clear();
+        Utils.DestroyObjectsInList(ref _uselessRooms);
         
         for (int i = transform.childCount - 1; i >= 0; i--)
             Utils.Destroy(transform.GetChild(i).gameObject);
@@ -461,47 +481,59 @@ public class SRPGenerator : MonoBehaviour
 
     void FromGeneratedToValidate(SRPRoomData r)
     {
-        if (r == null) return;
-        if (_validatedRooms.Contains(r))
-        {
-            Debug.LogError($"Room {r.root.name} has already been validated", r.global);
+        if (FromTo(_generatedRooms, _validatedRooms, r))
             return;
+        
+        Debug.Log($"Room {r.root.name} has already been validated or removed from generated", r.global);
+    }      
+    void FromGeneratedToUseless(SRPRoomData r)
+    {
+        if (FromTo(_generatedRooms, _uselessRooms, r))
+            return;
+        
+        Debug.Log($"Room {r.root.name} has already been moved to useless or removed from generated", r.global);
+    }    
+    
+    bool FromTo<T>(List<T> origin, List<T> dest, T r)
+    {
+        if (r == null) return false;
+        if (dest.Contains(r))
+        {
+            Debug.LogError($"{r.GetType()} has already been moved to dest list");
+            return false;
         }
         
-        _validatedRooms.Add(r);
+        dest.Add(r);
 
-        if (_generatedRooms.Contains(r) == false)
+        if (origin.Contains(r) == false)
         {
-            Debug.LogError($"Room {r.root.name} has already been removed from generated", r.global);
-            return;
+            Debug.LogError($"{r.GetType()} has already been removed from origin list");
+            return false;
         }
         
-        _generatedRooms.Remove(r);
+        origin.Remove(r);
+        return true;
     }
     
+    /// <summary>
+    /// Check collision with other rooms (no physics involved)
+    /// </summary>
     bool IsRoomValid(SRPRoomData room)
     {
         // Check collision with _validatedRooms
-        // foreach (SRPRoomData valid in _validatedRooms)
-        // {
-        //     if (CollidingWith(room.global, valid.global))
-        //         return false;
-        // }    
-        // // Check collision with _generatedRooms
-        // foreach (SRPRoomData gen in _generatedRooms)
-        // {
-        //     if (gen == room)
-        //         continue;
-        //     if (CollidingWith(room.global, gen.global))
-        //         return false;
-        // }
-        
-        Vector3 pos = room.global.transform.position;
-        Vector3 halfSize = Utils.GetWorldSize(room.global.GetComponent<Collider>()) / 2f;
-        
-        // BoxCast all the other rooms and corridors
-        if(CollidingWithCorridorObstacle(pos, halfSize, Vector3.up, ~0, new () {room.global}))
-            return false;
+        foreach (SRPRoomData valid in _validatedRooms)
+        {
+            if (CollidingWith(room.global, valid.global))
+                return false;
+        }    
+        // Check collision with _generatedRooms
+        foreach (SRPRoomData gen in _generatedRooms)
+        {
+            if (gen == room)
+                continue;
+            if (CollidingWith(room.global, gen.global))
+                return false;
+        }
         
         return true;
     }
@@ -575,12 +607,15 @@ public class SRPGenerator : MonoBehaviour
     /// Find the closest reachable Door
     /// </summary>
     /// <returns>Return the SRPDoor Component if succeeded, otherwise null</returns>
-    [CanBeNull] SRPDoor FindClosestDoor(SRPDoor door)
+    [CanBeNull] SRPDoor FindClosestDoor(SRPDoor door, List<SRPDoor> ignore = null)
     {
+        bool ignoreListExist = (ignore == null) == false;
         float dist = float.MaxValue;
         SRPDoor closest = null;
         // get the corridor dimensions
-        Vector3 corridorPrefabSize = Utils.GetWorldSize(roomStyle.corridorPrefab.GetComponent<Collider>());
+        Vector3 corridorPrefabHalfSize = 
+            Utils.GetWorldSize(roomStyle.corridorPrefab.GetComponent<Collider>()) 
+            / 2f;
         
         // for each room, try to get the closest door of doorData
         foreach (SRPRoomData otherRoom in _validatedRooms)
@@ -595,6 +630,12 @@ public class SRPGenerator : MonoBehaviour
                 // Skip if door is already used for another corridor
                 if(otherDoor.isUsed) 
                     continue;
+
+                if (ignoreListExist)
+                {
+                    if(ignore.Contains(otherDoor))
+                        continue;
+                }
                 
                 Vector3 start = door.corridorStart.transform.position;
                 Vector3 end = otherDoor.corridorStart.transform.position;
@@ -605,7 +646,7 @@ public class SRPGenerator : MonoBehaviour
                     continue;
                 
                 // Skip if the path to the actual door can't be reach
-                if(CollidingWithCorridorObstacle(start, corridorPrefabSize, end - start))
+                if(CollidingWithCorridorObstacle(start, corridorPrefabHalfSize, end - start))
                     continue;
                 
                 // Keep actual door as the closest
