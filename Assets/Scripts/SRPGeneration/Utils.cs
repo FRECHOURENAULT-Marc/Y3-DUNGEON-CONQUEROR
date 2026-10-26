@@ -24,6 +24,17 @@ public static class Utils {
     }
     
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
+    public static DateTime GetElapsedTime(DateTime start, DateTime end)
+    {
+        return new DateTime((end.Ticks - start.Ticks));
+    }
+    
+    /// <summary>
     /// Shuffles the element order of the specified list.
     /// </summary>
     public static void Shuffle<T>(IList<T> ts) {

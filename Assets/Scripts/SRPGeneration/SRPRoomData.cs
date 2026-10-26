@@ -11,27 +11,23 @@ public class SRPRoomData
     public List<GameObject> doors = new();
     public List<GameObject> corridors = new();
     
+    public int biome = int.MinValue;
+    
     public void Destroy()
     {
         if(root != null)
-            Utils.Destroy(root);
-        if(global != null)
-            Utils.Destroy(global);
-        if(floor != null)
-            Utils.Destroy(floor);
+            Utils.Destroy(root); // --> destroy root destroy all children
         
-        if(walls != null)
-            Utils.DestroyObjectsInList(ref walls);        
-        if(doors != null)
-            Utils.DestroyObjectsInList(ref doors);
+        // if(global != null)
+        //     Utils.Destroy(global);
+        // if(floor != null)
+        //     Utils.Destroy(floor);
+        //
+        // if(walls != null)
+        //     Utils.DestroyObjectsInList(ref walls);        
+        // if(doors != null)
+        //     Utils.DestroyObjectsInList(ref doors);
         
-        // if (doors != null)
-        // {
-        //     for(int i = doors.Count - 1; i >= 0; --i)
-        //         Utils.Destroy(doors[i]);
-        //     doors.Clear();
-        // }
-
         if (corridors != null)
         {
             foreach (var go in corridors)
@@ -42,6 +38,5 @@ public class SRPRoomData
             }
             Utils.DestroyObjectsInList(ref corridors);
         }
-            
     }
 }

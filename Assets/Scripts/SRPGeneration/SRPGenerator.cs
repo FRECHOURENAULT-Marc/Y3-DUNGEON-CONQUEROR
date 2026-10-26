@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -12,15 +11,16 @@ using Random = UnityEngine.Random;
 public class SRPGenerator : MonoBehaviour
 {
     [Header("Room Style")] 
-    [SerializeField] RoomStyleSO roomStyle;
+    [SerializeField] RoomStyleSO roomStyle;    
     
     [Header("Map Style")]
     [SerializeField] MapStyleSO mapStyle;
+    
+    [Header("Generation")]
     [Range(0, 100000)] 
     [SerializeField] int maxTries;    
     [Range(0, 1000)] 
     [SerializeField] int target;
-
     [Header("Seed")] 
     [SerializeField] int seed;
     [SerializeField] bool randomSeed;
@@ -76,21 +76,24 @@ public class SRPGenerator : MonoBehaviour
     [Button]
     public async Task GenerateAllSteps()
     {
-        double startTime = Time.time;
-        
+        DateTime begin = DateTime.Now;
+
         ResetAll();
         InitSeed();
         
-        double resetDt = Time.time - startTime; // Debug
+        double resetDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond; // Debug
+        begin = DateTime.Now;
         Debug.Log("Generation started..."); // Debug
         
         GenerateRooms();
         
-        double genRoomDt = Time.time - startTime - resetDt; // Debug
+        double genRoomDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond; // Debug
+        begin = DateTime.Now;
         
         BuildRooms();
         
-        double buildRoomDt = Time.time - startTime - resetDt - genRoomDt; // Debug
+        double buildRoomDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond; // Debug
+        begin = DateTime.Now;
 
         // wait physics update (rework without physics ? like obb class)
         await Awaitable.WaitForSecondsAsync(Time.fixedDeltaTime, _cs.Token);
@@ -100,15 +103,25 @@ public class SRPGenerator : MonoBehaviour
         FromGeneratedToValidate(_generatedRooms[0]); // Add first room 
         BuildCorridors();
         
-        double buildCorridorDt = Time.time - startTime - resetDt - genRoomDt - buildRoomDt - Time.fixedDeltaTime; // Debug
+        double buildCorridorDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond; // Debug
+        begin = DateTime.Now;
         
         RemoveNotConnectedRooms(); // Destroy room not connected
         ReplaceNotConnectedDoors(); // Replace useless doors by walls
+
+        GenerateBiome(); // Choose biome for each room
         
         // Debug
-        double cleanDt = Time.time - startTime - resetDt - genRoomDt - buildRoomDt - Time.fixedDeltaTime - buildCorridorDt;
-        Debug.Log("Generation ended (total time: " + (Time.time - startTime) + ")");
-        Debug.Log("Reset Time: " + resetDt + " GenTime: " + genRoomDt + " BuildRTime: " + buildRoomDt + " BuildCTime: " + buildCorridorDt + " CleanTime: " + cleanDt);
+        double cleanDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond;
+        begin = DateTime.Now;
+        Debug.Log(
+            "Generation ended (total time: " + (Utils.GetElapsedTime(begin, DateTime.Now).Millisecond) + "ms)" +
+            "\n----- Detailed data -----" +
+            "\nReset Time: " + resetDt + "ms" +
+            "\nGen Time: " + genRoomDt + "ms" +
+            "\nBuildR Time: " + buildRoomDt + "ms" +
+            "\nBuildC Time: " + buildCorridorDt + "ms" +
+            "\nClean Time: " + cleanDt + "ms");
         Debug.Log("Rooms: " + _validatedRooms.Count + "/"+target);
         
         // check if all rooms have one door used
@@ -395,7 +408,6 @@ public class SRPGenerator : MonoBehaviour
         //Utils.DestroyObjectsInList(ref _generatedRooms);
         Utils.DestroyObjectsInList(ref _uselessRooms);
     }
-    
     [Button]
     void ReplaceNotConnectedDoors()
     {
@@ -447,7 +459,33 @@ public class SRPGenerator : MonoBehaviour
             }
         }
     }
-    
+
+    [Button]
+    void GenerateBiome()
+    {
+        foreach (SRPRoomData r in _validatedRooms)
+        {
+            float sum = 0f;
+            foreach (var biomeData in mapStyle.biome.biomeList)
+                sum += biomeData.prob;          
+            float rdmBiome = Random.Range(0f, sum);
+            
+            // Select Biome
+            foreach (var biomeData in mapStyle.biome.biomeList)
+            {
+                rdmBiome -= biomeData.prob;
+                if (rdmBiome > 0) continue;
+                r.biome = biomeData.value;
+
+                // Add Biome Behavior
+                if(biomeData.biomeBehaviorPrefab == null) 
+                    break;
+                Instantiate(biomeData.biomeBehaviorPrefab, r.root.transform)
+                    .transform.localPosition = Vector3.zero;
+                break;
+            }
+        }
+    }
 
     
     [Button]
