@@ -9,7 +9,7 @@ public class SRPDoor : MonoBehaviour
     public List<GameObject> doorWalls;
     public bool isUsed = false;
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         Utils.DestroyObjectsInList(ref doorWalls);
     }

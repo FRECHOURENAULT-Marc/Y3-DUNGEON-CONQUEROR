@@ -122,12 +122,12 @@ public class SRPGenerator : MonoBehaviour
         Debug.Log(
             "Generation ended (total time: " + (Utils.GetElapsedTime(begin, DateTime.Now).Millisecond) + "ms)" +
             "\n----- Detailed time data -----" +
-            "\nReset        : " + resetDt + "ms" +
-            "\nGen          : " + genRoomDt + "ms" +
-            "\nBuildR       : " + buildRoomDt + "ms" +
-            "\nBuildC       : " + buildCorridorDt + "ms" +
-            "\nClean        : " + cleanDt + "ms" +
-            "\nCustomization: " + customRoomDt + "ms");
+            "\nReset : " + resetDt + "ms" +
+            "\nGen : " + genRoomDt + "ms" +
+            "\nBuildR : " + buildRoomDt + "ms" +
+            "\nBuildC : " + buildCorridorDt + "ms" +
+            "\nClean : " + cleanDt + "ms" +
+            "\nCustomization : " + customRoomDt + "ms");
         Debug.Log("Rooms: " + _validatedRooms.Count + "/"+target);
         
         // check if all rooms have one door used
@@ -445,13 +445,17 @@ public class SRPGenerator : MonoBehaviour
                 SRPDoor door = r.doors[i].GetComponent<SRPDoor>();
                 if (door.isUsed)
                     continue;
-
+                
+                // OnDestroy of SRPDoor not called when edit mode
+                if (Application.isPlaying == false)
+                {
+                    for (int j = door.doorWalls.Count - 1; j >= 0; j--)
+                        Utils.Destroy(door.doorWalls[j]);
+                }
+                
                 // delete useless door
-                Utils.Destroy(r.doors[i].GetComponent<SRPDoor>());
                 Utils.Destroy(r.doors[i]);
                 r.doors.RemoveAt(i);
-                
-                // todo : delete old walls
 
                 // generate new wall
                 // scale.x with global.localScale.x and after global.transform.localScale.y
