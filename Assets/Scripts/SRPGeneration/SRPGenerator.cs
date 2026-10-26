@@ -108,20 +108,26 @@ public class SRPGenerator : MonoBehaviour
         
         RemoveNotConnectedRooms(); // Destroy room not connected
         ReplaceNotConnectedDoors(); // Replace useless doors by walls
-
-        GenerateBiome(); // Choose biome for each room
         
-        // Debug
         double cleanDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond;
         begin = DateTime.Now;
+
+        SelectStartAndEnd(); // Place start room and end room
+        GenerateBiome(); // Choose biome for each room
+        
+        double customRoomDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond; // Debug
+        begin = DateTime.Now;
+        
+        // Debug
         Debug.Log(
             "Generation ended (total time: " + (Utils.GetElapsedTime(begin, DateTime.Now).Millisecond) + "ms)" +
-            "\n----- Detailed data -----" +
-            "\nReset Time: " + resetDt + "ms" +
-            "\nGen Time: " + genRoomDt + "ms" +
-            "\nBuildR Time: " + buildRoomDt + "ms" +
-            "\nBuildC Time: " + buildCorridorDt + "ms" +
-            "\nClean Time: " + cleanDt + "ms");
+            "\n----- Detailed time data -----" +
+            "\nReset        : " + resetDt + "ms" +
+            "\nGen          : " + genRoomDt + "ms" +
+            "\nBuildR       : " + buildRoomDt + "ms" +
+            "\nBuildC       : " + buildCorridorDt + "ms" +
+            "\nClean        : " + cleanDt + "ms" +
+            "\nCustomization: " + customRoomDt + "ms");
         Debug.Log("Rooms: " + _validatedRooms.Count + "/"+target);
         
         // check if all rooms have one door used
@@ -443,6 +449,9 @@ public class SRPGenerator : MonoBehaviour
                 // delete useless door
                 Utils.Destroy(r.doors[i].GetComponent<SRPDoor>());
                 Utils.Destroy(r.doors[i]);
+                r.doors.RemoveAt(i);
+                
+                // todo : delete old walls
 
                 // generate new wall
                 // scale.x with global.localScale.x and after global.transform.localScale.y
@@ -461,10 +470,70 @@ public class SRPGenerator : MonoBehaviour
     }
 
     [Button]
+    void SelectStartAndEnd()
+    {
+        if (mapStyle.startBehavior == null || mapStyle.endBehavior == null)
+        {
+            Debug.LogWarning("Missing start room or end room in mapStyleSO", mapStyle);
+            return;
+        }
+        
+        List<SRPRoomData> startCandidates = new();
+        foreach (SRPRoomData r in _validatedRooms)
+        {
+            if(r.doors.Count <= 1)
+                continue;
+            startCandidates.Add(r);
+        }        
+        List<SRPRoomData> endCandidates = new();
+        foreach (SRPRoomData r in _validatedRooms)
+        {
+            if(r.doors.Count > 1)
+                continue;
+            endCandidates.Add(r);
+        }
+ 
+        if (startCandidates.Count == 0)
+        {
+            Debug.LogError("No room are valid to be the start room.");
+            return;
+        }        
+        if (endCandidates.Count == 0)
+        {
+            Debug.LogError("No room are valid to be the end room.");
+            return;
+        }
+        
+        Debug.Log("Start candidates : " + startCandidates.Count);
+        Debug.Log("End candidates : " + endCandidates.Count);
+        
+        int startId = Random.Range(0, startCandidates.Count);
+        int endId = Random.Range(0, endCandidates.Count);
+        
+        SRPRoomData startRoom = startCandidates[startId];
+        SRPRoomData endRoom = endCandidates[endId];
+
+        if (startRoom == endRoom)
+        {
+            Debug.LogError("Start and end room are the same.");
+            return;
+        }
+        startRoom.biome = int.MaxValue;
+        endRoom.biome = int.MaxValue;
+        Instantiate(mapStyle.startBehavior, startRoom.root.transform)
+            .transform.localPosition = Vector3.zero;
+        Instantiate(mapStyle.endBehavior, endRoom.root.transform)
+            .transform.localPosition = Vector3.zero;
+    }
+    
+    [Button]
     void GenerateBiome()
     {
         foreach (SRPRoomData r in _validatedRooms)
         {
+            if(r.biome >= 0)
+                continue;
+            
             float sum = 0f;
             foreach (var biomeData in mapStyle.biome.biomeList)
                 sum += biomeData.prob;          

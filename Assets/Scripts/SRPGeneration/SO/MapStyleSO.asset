@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: MapStyleSO
   m_EditorClassIdentifier: Assembly-CSharp::MapStyleSO
   biome: {fileID: 11400000, guid: 38ffc37e350425647835e875ca3a51f5, type: 2}
+  startBehavior: {fileID: 4394024244983283182, guid: 2d8e9bbe5638cbf49a5893ae1776a426, type: 3}
+  endBehavior: {fileID: 4394024244983283182, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
   width: 500
   depth: 500
   height: 30

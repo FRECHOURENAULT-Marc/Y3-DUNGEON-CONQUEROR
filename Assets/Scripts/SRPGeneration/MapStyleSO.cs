@@ -6,6 +6,11 @@ public class MapStyleSO : ScriptableObject
     [Header("Biomes")]
     public MapBiomeSO biome;    
     
+    [Header("Start")]
+    public GameObject startBehavior;    
+    [Header("End")]
+    public GameObject endBehavior;
+    
     [Header("Size")]
     [Range(0, 1000)] public int width;
     [Range(0, 1000)] public int depth;
