@@ -177,6 +177,7 @@ public class SRPGenerator : MonoBehaviour
     void BuildRooms()
     {
         BuildRoomsFloors();
+        BuildRoomsRoofs();
         BuildRoomsWallsAndDoors();
     } 
     
@@ -192,6 +193,21 @@ public class SRPGenerator : MonoBehaviour
                 roomScale.x * floorScaleFactor.x,
                 roomScale.y * floorScaleFactor.y,
                 roomScale.z * floorScaleFactor.z);
+            r.floor.transform.localPosition = offset;
+        }
+    }    
+    void BuildRoomsRoofs()
+    {
+        foreach (SRPRoomData r in _generatedRooms)
+        {
+            r.floor = Instantiate(roomStyle.roofPrefab, r.root.transform);
+            Vector3 roomScale = r.global.transform.localScale;
+            Vector3 roofScaleFactor = r.floor.transform.localScale;
+            Vector3 offset = new Vector3(0, r.global.transform.localScale.y / 2, 0);
+            r.floor.transform.localScale = new Vector3(
+                roomScale.x * roofScaleFactor.x,
+                roomScale.y * roofScaleFactor.y,
+                roomScale.z * roofScaleFactor.z);
             r.floor.transform.localPosition = offset;
         }
     }

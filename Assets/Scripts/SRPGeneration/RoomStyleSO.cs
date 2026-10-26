@@ -24,6 +24,7 @@ public class RoomStyleSO : ScriptableObject
     public GameObject rootPrefab;
     public GameObject roomPrefab;
     public GameObject floorPrefab;
+    public GameObject roofPrefab;
     public GameObject wallPrefab;
     public GameObject doorPrefab;
     
