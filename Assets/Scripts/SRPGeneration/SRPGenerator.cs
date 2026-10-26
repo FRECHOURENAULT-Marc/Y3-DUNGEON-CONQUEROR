@@ -26,9 +26,9 @@ public class SRPGenerator : MonoBehaviour
     [SerializeField] bool randomSeed;
     
     CancellationTokenSource _cs;
-    List<SRPRoomData> _generatedRooms;
-    List<SRPRoomData> _uselessRooms;
-    List<SRPRoomData> _validatedRooms;
+    List<SRPRoom> _generatedRooms;
+    List<SRPRoom> _uselessRooms;
+    List<SRPRoom> _validatedRooms;
     
     // Debug
     List<RayData> _rays = new();
@@ -113,7 +113,7 @@ public class SRPGenerator : MonoBehaviour
         begin = DateTime.Now;
 
         SelectStartAndEnd(); // Place start room and end room
-        GenerateBiome(); // Choose biome for each room
+        GenerateBiomes(); // Choose biome for each room
         
         double customRoomDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond; // Debug
         begin = DateTime.Now;
@@ -131,12 +131,12 @@ public class SRPGenerator : MonoBehaviour
         Debug.Log("Rooms: " + _validatedRooms.Count + "/"+target);
         
         // check if all rooms have one door used
-        foreach (SRPRoomData r in _validatedRooms)
+        foreach (SRPRoom r in _validatedRooms)
         {
             int doorUsed = 0;
             foreach (GameObject doorGo in r.doors)
             {
-                SRPDoor door = doorGo.GetComponent<SRPDoor>();
+                IDoor door = doorGo.GetComponent<IDoor>();
                 if (door.isUsed == false)
                     continue;
                 doorUsed++;
@@ -171,24 +171,23 @@ public class SRPGenerator : MonoBehaviour
                 Random.Range(roomStyle.minWidth, roomStyle.maxWidth), 
                 Random.Range(roomStyle.minHeight, roomStyle.maxHeight), 
                 Random.Range(roomStyle.minDepth, roomStyle.maxDepth));
-            
-            SRPRoomData nSrpRoomData = new ()
-            {
-                root = Instantiate(roomStyle.rootPrefab, transform),
-            };
-            nSrpRoomData.root.name += i;
-            nSrpRoomData.global = Instantiate(roomStyle.roomPrefab, nSrpRoomData.root.transform);
-            
-            nSrpRoomData.root.transform.position = pos;
-            nSrpRoomData.global.transform.localScale = scale;
 
-            if (IsRoomValid(nSrpRoomData) == false)
+
+            GameObject roomGo = Instantiate(roomStyle.rootPrefab, transform);
+            SRPRoom nSrpRoom = roomGo.AddComponent<SRPRoom>();
+            nSrpRoom.root.name += i;
+            nSrpRoom.global = Instantiate(roomStyle.roomPrefab, nSrpRoom.root.transform);
+            
+            nSrpRoom.root.transform.position = pos;
+            nSrpRoom.global.transform.localScale = scale;
+
+            if (IsRoomValid(nSrpRoom) == false)
             {
-                nSrpRoomData.Destroy();
+                Utils.Destroy(nSrpRoom);
                 continue;
             }
             
-            _generatedRooms.Add(nSrpRoomData);
+            _generatedRooms.Add(nSrpRoom);
         }
     }
 
@@ -202,7 +201,7 @@ public class SRPGenerator : MonoBehaviour
     
     void BuildRoomsFloors()
     {
-        foreach (SRPRoomData r in _generatedRooms)
+        foreach (SRPRoom r in _generatedRooms)
         {
             r.floor = Instantiate(roomStyle.floorPrefab, r.root.transform);
             Vector3 roomScale = r.global.transform.localScale;
@@ -217,7 +216,7 @@ public class SRPGenerator : MonoBehaviour
     }    
     void BuildRoomsRoofs()
     {
-        foreach (SRPRoomData r in _generatedRooms)
+        foreach (SRPRoom r in _generatedRooms)
         {
             r.floor = Instantiate(roomStyle.roofPrefab, r.root.transform);
             Vector3 roomScale = r.global.transform.localScale;
@@ -233,7 +232,7 @@ public class SRPGenerator : MonoBehaviour
     
     void BuildRoomsWallsAndDoors()
     {
-        foreach (SRPRoomData r in _generatedRooms)
+        foreach (SRPRoom r in _generatedRooms)
         {
             List<Vector3> sideOffset = new ()
             {
@@ -280,7 +279,9 @@ public class SRPGenerator : MonoBehaviour
                     
                     // Add door
                     GameObject doorGo = Instantiate(roomStyle.doorPrefab, r.root.transform);
-                    //Vector3 doorSize = doorGo.GetComponent<Collider>().bounds.size;
+                    IDoor door = doorGo.GetComponent<IDoor>();
+                    door.roomFrom = r;
+                    door.Init();
                     float doorSizeX = doorSize.x;
                     float doorSizeY = doorSize.y;
                     Vector3 doorOffset = new Vector3(
@@ -289,8 +290,6 @@ public class SRPGenerator : MonoBehaviour
                         wallOffset.z);
                     doorGo.transform.localPosition = doorOffset;
                     doorGo.transform.localEulerAngles = wallRot;
-                    SRPDoor door = doorGo.GetComponent<SRPDoor>();
-                    door.roomFrom = r;
                     r.doors.Add(doorGo);
 
                     // Add small wall on top of the door
@@ -351,15 +350,15 @@ public class SRPGenerator : MonoBehaviour
             }
                 
             
-            SRPRoomData roomData = _generatedRooms[i];
-            foreach (GameObject doorGo in roomData.doors)
+            SRPRoom room = _generatedRooms[i];
+            foreach (GameObject doorGo in room.doors)
             {
-                SRPDoor door = doorGo.GetComponent<SRPDoor>();
+                IDoor door = doorGo.GetComponent<IDoor>();
                 
                 if(door.isUsed)
                     continue;
                 
-                SRPDoor closestDoor = FindClosestDoor(door);
+                IDoor closestDoor = FindClosestDoor(door);
                 if(closestDoor == null)
                     continue;
                 
@@ -382,28 +381,28 @@ public class SRPGenerator : MonoBehaviour
                 
                 // main corridor
                 float scaleZ = Vector3.Distance(start, end);
-                GameObject corridor = Instantiate(roomStyle.corridorPrefab, roomData.root.transform);
+                GameObject corridor = Instantiate(roomStyle.corridorPrefab, room.root.transform);
                 corridor.transform.position = new Vector3(
                     (start.x + end.x) / 2f, 
                     (start.y + end.y) / 2f, 
                     (start.z + end.z) / 2f);
                 corridor.transform.LookAt(end);
                 corridor.transform.localScale = new Vector3(1, 1, scaleZ);
-                roomData.corridors.Add(corridor);
+                room.corridors.Add(corridor);
                 
                 // Link doors <-> corridor edges
-                BuildDoorLink(roomData, door, corridor);
-                BuildDoorLink(roomData, closestDoor, corridor);
+                BuildDoorLink(room, door, corridor);
+                BuildDoorLink(room, closestDoor, corridor);
 
-                FromGeneratedToValidate(roomData);
+                FromGeneratedToValidate(room);
             }
 
-            if (_validatedRooms.Contains(roomData))
+            if (_validatedRooms.Contains(room))
                 continue;
             
             // room cannot be connected, remove it to avoid useless computations in next checks
             // _generatedRooms[i].Destroy();
-            _uselessRooms.Add(roomData);
+            _uselessRooms.Add(room);
             _generatedRooms.RemoveAt(i);
         }
     }
@@ -417,7 +416,7 @@ public class SRPGenerator : MonoBehaviour
     [Button]
     void ReplaceNotConnectedDoors()
     {
-        foreach (SRPRoomData r in _validatedRooms)
+        foreach (SRPRoom r in _validatedRooms)
         {
             List<Vector3> sideOffset = new()
             {
@@ -442,7 +441,7 @@ public class SRPGenerator : MonoBehaviour
 
             for (int i = r.doors.Count - 1; i >= 0; i--)
             {
-                SRPDoor door = r.doors[i].GetComponent<SRPDoor>();
+                IDoor door = r.doors[i].GetComponent<IDoor>();
                 if (door.isUsed)
                     continue;
                 
@@ -482,15 +481,15 @@ public class SRPGenerator : MonoBehaviour
             return;
         }
         
-        List<SRPRoomData> startCandidates = new();
-        foreach (SRPRoomData r in _validatedRooms)
+        List<SRPRoom> startCandidates = new();
+        foreach (SRPRoom r in _validatedRooms)
         {
             if(r.doors.Count <= 1)
                 continue;
             startCandidates.Add(r);
         }        
-        List<SRPRoomData> endCandidates = new();
-        foreach (SRPRoomData r in _validatedRooms)
+        List<SRPRoom> endCandidates = new();
+        foreach (SRPRoom r in _validatedRooms)
         {
             if(r.doors.Count > 1)
                 continue;
@@ -514,8 +513,8 @@ public class SRPGenerator : MonoBehaviour
         int startId = Random.Range(0, startCandidates.Count);
         int endId = Random.Range(0, endCandidates.Count);
         
-        SRPRoomData startRoom = startCandidates[startId];
-        SRPRoomData endRoom = endCandidates[endId];
+        SRPRoom startRoom = startCandidates[startId];
+        SRPRoom endRoom = endCandidates[endId];
 
         if (startRoom == endRoom)
         {
@@ -531,9 +530,9 @@ public class SRPGenerator : MonoBehaviour
     }
     
     [Button]
-    void GenerateBiome()
+    void GenerateBiomes()
     {
-        foreach (SRPRoomData r in _validatedRooms)
+        foreach (SRPRoom r in _validatedRooms)
         {
             if(r.biome >= 0)
                 continue;
@@ -553,8 +552,9 @@ public class SRPGenerator : MonoBehaviour
                 // Add Biome Behavior
                 if(biomeData.biomeBehaviorPrefab == null) 
                     break;
-                Instantiate(biomeData.biomeBehaviorPrefab, r.root.transform)
-                    .transform.localPosition = Vector3.zero;
+                GameObject biomeGo = Instantiate(biomeData.biomeBehaviorPrefab, r.root.transform);
+                biomeGo.transform.localPosition = Vector3.zero;
+                biomeGo.GetComponent<DefaultBiome>().roomRoot = r.root;
                 break;
             }
         }
@@ -583,9 +583,9 @@ public class SRPGenerator : MonoBehaviour
             return;
         }
         
-        _generatedRooms ??= new List<SRPRoomData>();
-        _validatedRooms ??= new List<SRPRoomData>();
-        _uselessRooms ??= new List<SRPRoomData>();
+        _generatedRooms ??= new List<SRPRoom>();
+        _validatedRooms ??= new List<SRPRoom>();
+        _uselessRooms ??= new List<SRPRoom>();
 
         _cs ??= new CancellationTokenSource();
     }
@@ -606,14 +606,14 @@ public class SRPGenerator : MonoBehaviour
             Utils.Destroy(transform.GetChild(i).gameObject);
     }
 
-    void FromGeneratedToValidate(SRPRoomData r)
+    void FromGeneratedToValidate(SRPRoom r)
     {
         if (FromTo(_generatedRooms, _validatedRooms, r))
             return;
         
         Debug.Log($"Room {r.root.name} has already been validated or removed from generated", r.global);
     }      
-    void FromGeneratedToUseless(SRPRoomData r)
+    void FromGeneratedToUseless(SRPRoom r)
     {
         if (FromTo(_generatedRooms, _uselessRooms, r))
             return;
@@ -645,16 +645,16 @@ public class SRPGenerator : MonoBehaviour
     /// <summary>
     /// Check collision with other rooms (no physics involved)
     /// </summary>
-    bool IsRoomValid(SRPRoomData room)
+    bool IsRoomValid(SRPRoom room)
     {
         // Check collision with _validatedRooms
-        foreach (SRPRoomData valid in _validatedRooms)
+        foreach (SRPRoom valid in _validatedRooms)
         {
             if (CollidingWith(room.global, valid.global))
                 return false;
         }    
         // Check collision with _generatedRooms
-        foreach (SRPRoomData gen in _generatedRooms)
+        foreach (SRPRoom gen in _generatedRooms)
         {
             if (gen == room)
                 continue;
@@ -734,18 +734,18 @@ public class SRPGenerator : MonoBehaviour
     /// Find the closest reachable Door
     /// </summary>
     /// <returns>Return the SRPDoor Component if succeeded, otherwise null</returns>
-    [CanBeNull] SRPDoor FindClosestDoor(SRPDoor door, List<SRPDoor> ignore = null)
+    [CanBeNull] IDoor FindClosestDoor(IDoor door, List<IDoor> ignore = null)
     {
         bool ignoreListExist = (ignore == null) == false;
         float dist = float.MaxValue;
-        SRPDoor closest = null;
+        IDoor closest = null;
         // get the corridor dimensions
         Vector3 corridorPrefabHalfSize = 
             Utils.GetWorldSize(roomStyle.corridorPrefab.GetComponent<Collider>()) 
             / 2f;
         
         // for each room, try to get the closest door of doorData
-        foreach (SRPRoomData otherRoom in _validatedRooms)
+        foreach (SRPRoom otherRoom in _validatedRooms)
         {
             if(otherRoom == door.roomFrom)
                 continue;
@@ -753,7 +753,7 @@ public class SRPGenerator : MonoBehaviour
             // each door of the room
             foreach (GameObject otherDoorGo in otherRoom.doors)
             {
-                SRPDoor otherDoor = otherDoorGo.GetComponent<SRPDoor>();
+                IDoor otherDoor = otherDoorGo.GetComponent<IDoor>();
                 // Skip if door is already used for another corridor
                 if(otherDoor.isUsed) 
                     continue;
@@ -788,7 +788,7 @@ public class SRPGenerator : MonoBehaviour
     /// <summary>
     /// Horizontal direction of the door exit (going to corridorStart).
     /// </summary>
-    static Vector3 GetDoorOutward(SRPDoor door)
+    static Vector3 GetDoorOutward(IDoor door)
     {
         Vector3 center = door.GetComponent<Collider>().bounds.center;
         Vector3 a = door.transform.forward;
@@ -802,7 +802,7 @@ public class SRPGenerator : MonoBehaviour
     /// Create a GameObject that links door (door.corridorStart) and main corridor
     /// The GameObject get a custom mesh of 4 quads (plans)
     /// </summary>
-    void BuildDoorLink(SRPRoomData roomData, SRPDoor door, GameObject corridor)
+    void BuildDoorLink(SRPRoom room, IDoor door, GameObject corridor)
     {
         Collider doorCol = door.GetComponent<Collider>();
         if (doorCol == null) return;
@@ -840,7 +840,7 @@ public class SRPGenerator : MonoBehaviour
             // i=2 : top
             // i=3 : left
             // Build a quad
-            Utils.AddQuad(vertices, triangles, roomData.root.transform,
+            Utils.AddQuad(vertices, triangles, room.root.transform,
                 d[i], d[next], c[next], c[i],
                 doubleSided: false);
         }
@@ -853,7 +853,7 @@ public class SRPGenerator : MonoBehaviour
         linkMesh.RecalculateBounds();
         // And the Go
         GameObject linkGo = new GameObject("DoorLink");
-        linkGo.transform.SetParent(roomData.root.transform, false);
+        linkGo.transform.SetParent(room.root.transform, false);
         linkGo.AddComponent<MeshFilter>().sharedMesh = linkMesh;
 
         // Take corridor Material for the Mesh Renderer (temp)
@@ -866,6 +866,6 @@ public class SRPGenerator : MonoBehaviour
         linkMeshCol.sharedMesh = linkMesh;
         linkMeshCol.convex = false; // corridor = open / not close --> not convex (im not sure if it's by default false)
         
-        roomData.corridors.Add(linkGo);
+        room.corridors.Add(linkGo);
     }
 }

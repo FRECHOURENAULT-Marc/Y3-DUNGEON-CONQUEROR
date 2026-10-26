@@ -157,4 +157,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea5a25f8b215a8640aa84881019054cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BiomeDefault
-  centerCubePrefab: {fileID: 1876102995237510905}
+  roomRoot: {fileID: 0}
+  _centerCubePrefab: {fileID: 1876102995237510905}

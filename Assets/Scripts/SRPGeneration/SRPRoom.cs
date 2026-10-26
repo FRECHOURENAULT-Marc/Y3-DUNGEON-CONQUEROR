@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SRPRoomData
+public class SRPRoom : MonoBehaviour
 {
     public GameObject root;
     public GameObject global;
@@ -12,21 +12,20 @@ public class SRPRoomData
     public List<GameObject> corridors = new();
     
     public int biome = int.MinValue;
+
+    public bool IsFinished { get; private set; }
+
+    public event Action OnFinished;
+
+    void Awake()
+    {
+        root = gameObject;
+    }
     
-    public void Destroy()
+    void OnDestroy()
     {
         if(root != null)
             Utils.Destroy(root); // --> destroy root destroy all children
-        
-        // if(global != null)
-        //     Utils.Destroy(global);
-        // if(floor != null)
-        //     Utils.Destroy(floor);
-        //
-        // if(walls != null)
-        //     Utils.DestroyObjectsInList(ref walls);        
-        // if(doors != null)
-        //     Utils.DestroyObjectsInList(ref doors);
         
         if (corridors != null)
         {
@@ -38,5 +37,14 @@ public class SRPRoomData
             }
             Utils.DestroyObjectsInList(ref corridors);
         }
+    }
+    
+    public void Finish()
+    {
+        if (IsFinished)
+            return;
+        
+        IsFinished = true;
+        OnFinished?.Invoke();
     }
 }

@@ -54,17 +54,17 @@ public static class Utils {
         for (int i = list.Count - 1; i >= 0; i--)
             Utils.Destroy(list[i]);
         list.Clear();
-    }  
-    
+    }
+
     /// <summary>
-    /// Destroy all SRPRoomData in the list
+    /// Destroy (Immediate) all Component in the list
     /// </summary>
-    static public void DestroyObjectsInList(ref List<SRPRoomData> list)
+    static public void DestroyObjectsInList<T>(ref List<T> list) where T : Component
     {
         for (int i = list.Count - 1; i >= 0; i--)
-            list[i].Destroy();
+            Utils.Destroy(list[i]);
         list.Clear();
-    }   
+    }  
     
     /// <summary>
     /// Get edges of a rect
