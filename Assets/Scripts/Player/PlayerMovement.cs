@@ -2,16 +2,19 @@ using System;
 using NaughtyAttributes;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PlayerMovement : MonoBehaviour
 {
 
     [Header("References")]
-    [SerializeField] PlayerInput _playerInput;
-    [SerializeField] GameObject _playerRoot;
-    [SerializeField] Rigidbody _playerRB;
-    [SerializeField] Camera _playerCamera;
-    [SerializeField] GameObject _playerArms;
+    [SerializeField] PlayerReferences _PReference;
+
+    // [SerializeField] PlayerInput _playerInput;
+    // [SerializeField] GameObject _playerRoot;
+    // [SerializeField] Rigidbody _playerRB;
+    // [SerializeField] Camera _playerCamera;
+    // [SerializeField] GameObject _playerArms;
 
     [Space]
     [SerializeField] Vector3 _cameraOffset;
@@ -21,10 +24,15 @@ public class PlayerMovement : MonoBehaviour
     [Space]
     [Header("Movement Setting")]
     [SerializeField] float _jumpRaycastDistance;
-    [SerializeField] Vector2 _lookDirection;
+    [SerializeField] float _jumpForce;
+    [Space]
+    [SerializeField] float _dashSpeed;
+    [SerializeField] float _dashDuration = 0.15f;
+    [Space]
     [SerializeField] float _movementSpeed;
     [SerializeField] float _sprintAdditionnalSpeed;
-    [SerializeField] float _jumpForce;
+    [Space]
+    [SerializeField] Vector2 _lookDirection;
     [SerializeField] float _lookMultiplier;
 
     float _cameraPitch;
@@ -38,6 +46,18 @@ public class PlayerMovement : MonoBehaviour
     [ShowNonSerializedField] bool _isOnSprint;
     [ShowNonSerializedField] float _velocity;
 
+    [SerializeField] bool _canDash;
+    [SerializeField] bool _canDoubleJump;
+    [SerializeField] bool _asUnlockDash;
+    [SerializeField] bool _asUnlockDoubleJump;
+    bool _isDashing;
+    float _dashTimeRemaining;
+    Vector3 _dashDirection;
+    CollisionDetectionMode _previousCollisionDetectionMode;
+
+
+    public bool AsUnlockDash { get => _asUnlockDash; set => _asUnlockDash = value; }
+    public bool AsUnlockDoubleJump { get => _asUnlockDoubleJump; set => _asUnlockDoubleJump = value; }
 
     public bool IsGrounded { get => _isGrounded; }
     public bool PredictedIsGrounded { get => _predictedIsGrounded; }
@@ -50,25 +70,30 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
-        _cameraPitch = Mathf.DeltaAngle(0f, _playerCamera.transform.eulerAngles.x);
+        _canDash = true;
+        _canDoubleJump = true;
+
+        _cameraPitch = Mathf.DeltaAngle(0f, _PReference.PlayerCamera.transform.eulerAngles.x);
         _cameraYawOffset = Mathf.DeltaAngle(
-            _playerRoot.transform.eulerAngles.y,
-            _playerCamera.transform.eulerAngles.y
+            _PReference.PlayerRoot.transform.eulerAngles.y,
+            _PReference.PlayerCamera.transform.eulerAngles.y
         );
 
-        _playerInput.OnMove += HandleMove;
-        _playerInput.OnLook += HandleLook;
+        _PReference.PlayerInput.OnMove += HandleMove;
+        _PReference.PlayerInput.OnLook += HandleLook;
 
-        _playerInput.OnSprint += HandleSprint;
-        _playerInput.OnJump += HandleJump;
+        _PReference.PlayerInput.OnSprint += HandleSprint;
+        _PReference.PlayerInput.OnJump += HandleJump;
+        _PReference.PlayerInput.OnDash += HandleDash;
     }
 
     void OnDestroy()
     {
-        _playerInput.OnLook -= HandleLook;
-        _playerInput.OnMove -= HandleMove;
-        _playerInput.OnSprint -= HandleSprint;
-        _playerInput.OnJump -= HandleJump;
+        _PReference.PlayerInput.OnLook -= HandleLook;
+        _PReference.PlayerInput.OnMove -= HandleMove;
+        _PReference.PlayerInput.OnSprint -= HandleSprint;
+        _PReference.PlayerInput.OnJump -= HandleJump;
+        _PReference.PlayerInput.OnDash -= HandleDash;
     }
 
     // Update is called once per frame
@@ -78,23 +103,15 @@ public class PlayerMovement : MonoBehaviour
         float maxVel = _movementSpeed + _sprintAdditionnalSpeed;
         _velocity /= maxVel;
 
-        // PlayerPosition update
-        _playerRoot.transform.Translate(
-            _moveDirection * 
-            ( _movementSpeed + 
-            ( _isOnSprint ? _sprintAdditionnalSpeed : 0 ) ) * 
-            Time.deltaTime
-        );
-
 
         // Set camera to player position
-        _playerCamera.transform.position = _playerRoot.transform.position + _cameraOffset;
+        _PReference.PlayerCamera.transform.position = _PReference.PlayerRoot.transform.position + _cameraOffset;
 
         // PlayerRotation
         Vector2 lookDelta = _lookDirection;
         _lookDirection = Vector2.zero;
 
-        _playerRoot.transform.Rotate(
+        _PReference.PlayerRoot.transform.Rotate(
             Vector3.up,
             lookDelta.x * 0.1f * _lookMultiplier,
             Space.World
@@ -105,17 +122,57 @@ public class PlayerMovement : MonoBehaviour
             -59f,
             59f
         );
-        _playerCamera.transform.rotation = Quaternion.Euler(
+        _PReference.PlayerCamera.transform.rotation = Quaternion.Euler(
             _cameraPitch,
-            _playerRoot.transform.eulerAngles.y + _cameraYawOffset,
+            _PReference.PlayerRoot.transform.eulerAngles.y + _cameraYawOffset,
             0f
         );
 
         // _isgrounded
-        _isGrounded = Physics.Raycast(_playerRoot.transform.position, Vector3.down, _jumpRaycastDistance);
-        _predictedIsGrounded = Physics.Raycast(_playerRoot.transform.position, Vector3.down, _jumpRaycastDistance + 1);
-        Debug.DrawRay(_playerRoot.transform.position, Vector3.down * _jumpRaycastDistance, Color.red);
-        Debug.DrawRay(_playerRoot.transform.position, Vector3.down * (_jumpRaycastDistance + 1), Color.blue);
+        _isGrounded = Physics.Raycast(_PReference.PlayerRoot.transform.position, Vector3.down, _jumpRaycastDistance);
+        _predictedIsGrounded = Physics.Raycast(_PReference.PlayerRoot.transform.position, Vector3.down, _jumpRaycastDistance + 1);
+        Debug.DrawRay(_PReference.PlayerRoot.transform.position, Vector3.down * _jumpRaycastDistance, Color.red);
+        Debug.DrawRay(_PReference.PlayerRoot.transform.position, Vector3.down * (_jumpRaycastDistance + 1), Color.blue);
+    }
+
+    void FixedUpdate()
+    {
+        if ( _isDashing )
+        {
+            _dashTimeRemaining -= Time.fixedDeltaTime;
+
+            Rigidbody playerRigidbody = _PReference.PlayerRigidbody;
+
+            Vector3 velocity = playerRigidbody.linearVelocity;
+
+            if ( _dashTimeRemaining > 0f )
+            {
+                playerRigidbody.linearVelocity = new Vector3(
+                    _dashDirection.x * _dashSpeed,
+                    velocity.y,
+                    _dashDirection.z * _dashSpeed
+                );
+                return;
+            }
+
+            playerRigidbody.linearVelocity = new Vector3(0f, velocity.y, 0f);
+            playerRigidbody.collisionDetectionMode = _previousCollisionDetectionMode;
+            _isDashing = false;
+        }
+        else
+        {
+            Rigidbody rb = _PReference.PlayerRigidbody;
+
+            Vector3 direction = _PReference.PlayerRoot.transform.TransformDirection(_moveDirection);
+            
+            float speed = _movementSpeed + (_isOnSprint ? _sprintAdditionnalSpeed : 0f);
+
+            rb.linearVelocity = new Vector3(
+                direction.x * speed,
+                rb.linearVelocity.y,
+                direction.z * speed
+            );
+        }
     }
 
     void HandleMove(Vector2 moveInput)
@@ -135,10 +192,76 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleJump()
     {
-        if (_playerRB != null && _isGrounded)
+        if ( _asUnlockDoubleJump )
         {
-            if(_playerRB.linearVelocity.y <= 0)
-                _playerRB.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+            if (_PReference.PlayerRigidbody != null && (_isGrounded || _canDoubleJump))
+            {
+                // if(_PReference.PlayerRigidbody.linearVelocity.y <= 0)
+                _PReference.PlayerRigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+
+                if ( _canDoubleJump && _PReference.PlayerRigidbody.linearVelocity.y > 0 ) DoubleJumpRecovery();
+            }
         }
+        else
+        {
+            if (_PReference.PlayerRigidbody != null && _isGrounded)
+            {
+                // if(_PReference.PlayerRigidbody.linearVelocity.y <= 0)
+                _PReference.PlayerRigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+            }
+        }
+    }
+
+    async void DoubleJumpRecovery()
+    {
+        _canDoubleJump = false;
+
+        while ( !_isGrounded ) await Awaitable.NextFrameAsync();
+
+        _canDoubleJump = true;
+    }
+
+    void HandleDash()
+    {
+        if ( !_asUnlockDash ) return;
+        if ( !_canDash ) return;
+
+        Rigidbody playerRigidbody = _PReference.PlayerRigidbody;
+        if ( playerRigidbody == null )
+        {
+            Debug.LogError("Cannot dash because the PlayerRigidbody reference is missing.", this);
+            return;
+        }
+
+        Vector3 dashDirection = _moveDirection == Vector3.zero
+            ? _PReference.PlayerRoot.transform.forward
+            : _PReference.PlayerRoot.transform.TransformDirection(_moveDirection.normalized);
+        dashDirection.y = 0f;
+        dashDirection.Normalize();
+
+        _dashDirection = dashDirection;
+        _previousCollisionDetectionMode = playerRigidbody.collisionDetectionMode;
+
+        playerRigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+
+        playerRigidbody.linearVelocity = new Vector3(
+            dashDirection.x * _dashSpeed,
+            playerRigidbody.linearVelocity.y,
+            dashDirection.z * _dashSpeed
+        );
+
+        _isDashing = true;
+        _dashTimeRemaining = _dashDuration;
+        _canDash = false;
+        RecoveryDash();
+    }
+
+    
+
+    async void RecoveryDash()
+    {
+        _canDash = false;
+        await Awaitable.WaitForSecondsAsync(1);
+        _canDash = true;
     }
 }

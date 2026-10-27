@@ -5,12 +5,14 @@ public class PlayerAnimation : MonoBehaviour
 {
 
     [Header("References")]
-    [SerializeField] Animator _playerAnimator;
-    [SerializeField] PlayerAttackSystem _attackSystem;
-    [SerializeField] Rigidbody _rb;
-    [SerializeField] PlayerInput _playerInput;
-    [SerializeField] PlayerMovement _playerMovement;
-    [SerializeField] GameObject _weaponObject;
+    [SerializeField] PlayerReferences _PReference;
+
+    // [SerializeField] Animator _playerAnimator;
+    // [SerializeField] PlayerAttackSystem _attackSystem;
+    // [SerializeField] Rigidbody _rb;
+    // [SerializeField] PlayerInput _playerInput;
+    // [SerializeField] PlayerMovement _playerMovement;
+    // [SerializeField] GameObject _weaponObject;
 
     [Header("Setting")]
     [SerializeField] bool _asWeapon;
@@ -22,36 +24,36 @@ public class PlayerAnimation : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        _playerInput.OnJump += HandleJump;
-        _playerInput.OnAttack += HandleAttack;
+        _PReference.PlayerInput.OnJump += HandleJump;
+        _PReference.PlayerInput.OnAttack += HandleAttack;
     }
 
     void OnDestroy()
     {
-        _playerInput.OnAttack -= HandleAttack;
-        _playerInput.OnJump += HandleJump;
+        _PReference.PlayerInput.OnAttack -= HandleAttack;
+        _PReference.PlayerInput.OnJump += HandleJump;
     }
 
     // Update is called once per frame
     void Update()
     {
-        _playerAnimator.SetBool("isGrounded", _playerMovement.PredictedIsGrounded);
+        _PReference.PlayerAnimator.SetBool("isGrounded", _PReference.PlayerMovement.PredictedIsGrounded);
 
-        _playerAnimator.SetFloat("velocity", _playerMovement.Velocity);
+        _PReference.PlayerAnimator.SetFloat("velocity", _PReference.PlayerMovement.Velocity);
 
-        _playerAnimator.SetBool("AsWeapon", _asWeapon);
-        _weaponObject.SetActive(_asWeapon);
+        _PReference.PlayerAnimator.SetBool("AsWeapon", _asWeapon);
+        _PReference.WeaponObject.SetActive(_asWeapon);
     }
 
 
     void HandleJump()
     {
-        _playerAnimator.SetTrigger("jump");
+        _PReference.PlayerAnimator.SetTrigger("jump");
     }
 
     void HandleAttack()
     {
-        if (_attackSystem.CanAttack)
-            _playerAnimator.SetTrigger("attack");
+        if (_PReference.PlayerAttackSystem.CanAttack)
+            _PReference.PlayerAnimator.SetTrigger("attack");
     }
 }
