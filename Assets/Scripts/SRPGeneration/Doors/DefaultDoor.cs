@@ -21,6 +21,9 @@ public class DefaultDoor : IDoor
     
     protected override void OpenDoor()
     {
+        if(isOpen)
+            return;
+        
         base.OpenDoor();
         Utils.Destroy(closeDoor);
         openDoor = Instantiate(openDoorPrefab, transform);
