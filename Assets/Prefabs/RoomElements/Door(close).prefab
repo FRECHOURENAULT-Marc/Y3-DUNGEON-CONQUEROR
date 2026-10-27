@@ -234,7 +234,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7201293826282176942}
   - component: {fileID: 5089114909039049507}
-  - component: {fileID: 3842684224638662446}
   m_Layer: 0
   m_Name: Door(close)
   m_TagString: Untagged
@@ -280,20 +279,3 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.5, y: 3, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3842684224638662446
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8920135381559222656}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58181f38efaefdb478e9fecf8d241d4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::IDoor
-  roomFrom: {fileID: 0}
-  otherDoor: {fileID: 0}
-  corridorStart: {fileID: 0}
-  doorWalls: []
-  isUsed: 0

@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 1287467243686881208}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0.3, y: 0, z: 0.2}
+  m_LocalPosition: {x: 0.65, y: 0, z: 0.2}
   m_LocalScale: {x: 0.2, y: 0.4, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -140,7 +140,7 @@ Transform:
   m_GameObject: {fileID: 1790670098573928781}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0.5, y: 0, z: 0}
+  m_LocalPosition: {x: 0.75, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 3, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -234,7 +234,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7201293826282176942}
   - component: {fileID: 5089114909039049507}
-  - component: {fileID: 2686671140601910055}
   m_Layer: 0
   m_Name: Door(open)
   m_TagString: Untagged
@@ -279,21 +278,4 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.5, y: 3, z: 1.5}
-  m_Center: {x: 0.5, y: 0, z: 0}
---- !u!114 &2686671140601910055
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8920135381559222656}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58181f38efaefdb478e9fecf8d241d4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  roomFrom: {fileID: 0}
-  otherDoor: {fileID: 0}
-  corridorStart: {fileID: 0}
-  doorWalls: []
-  isUsed: 0
+  m_Center: {x: 0.75, y: 0, z: 0}
