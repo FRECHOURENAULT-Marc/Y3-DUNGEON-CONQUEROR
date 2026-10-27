@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class HealthController : MonoBehaviour
 {
+    [SerializeField] GameObject _propsRoot;
 
     [Header("Health Setting")]
     [SerializeField] float _maxHealth;
@@ -10,6 +12,8 @@ public class HealthController : MonoBehaviour
 
     [Header("Referances")]
     [SerializeField] Slider _healthBarSlider;
+
+    public event Action PropsDeath;
 
 
     public float CurrentHealth { get => _currentHealth; }
@@ -30,16 +34,27 @@ public class HealthController : MonoBehaviour
 
     public void GetAttacked(float dmg)
     {
-        Debug.Log($"Getting attacked (-{dmg} health)");
+        // Debug.Log($"Getting attacked (-{dmg} health)");
 
         if ( dmg < 0 )
             return;
 
-        if ( _currentHealth - dmg < 0 )
+        if ( _currentHealth - dmg <= 0 )
+        {
+            Death();
             _currentHealth = 0;
+        }
         else
             _currentHealth -= dmg;
         
         _healthBarSlider.value = _currentHealth;
+    }
+
+    void Death()
+    {
+        Debug.Log($"{gameObject} is dead");
+        PropsDeath?.Invoke();
+
+        Destroy(_propsRoot);
     }
 }
