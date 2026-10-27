@@ -221,7 +221,7 @@ public class SRPGenerator : MonoBehaviour
         foreach (SRPRoom r in _generatedRooms)
         {
             r.floor = Instantiate(roomStyle.floorPrefab, r.root.transform);
-            Vector3 roomScale = r.global.transform.localScale;
+            Vector3 roomScale = new Vector3(r.global.transform.localScale.x, 1f, r.global.transform.localScale.z);
             Vector3 floorScaleFactor = r.floor.transform.localScale;
             Vector3 offset = new Vector3(0, -r.global.transform.localScale.y / 2, 0);
             r.floor.transform.localScale = new Vector3(
@@ -237,7 +237,7 @@ public class SRPGenerator : MonoBehaviour
         foreach (SRPRoom r in _generatedRooms)
         {
             r.floor = Instantiate(roomStyle.roofPrefab, r.root.transform);
-            Vector3 roomScale = r.global.transform.localScale;
+            Vector3 roomScale = new Vector3(r.global.transform.localScale.x, 1f, r.global.transform.localScale.z);
             Vector3 roofScaleFactor = r.floor.transform.localScale;
             Vector3 offset = new Vector3(0, r.global.transform.localScale.y / 2, 0);
             r.floor.transform.localScale = new Vector3(
