@@ -21,30 +21,71 @@ public class PlayerAttackSystem : MonoBehaviour
     [SerializeField] float _maxSweepAngle;
     [SerializeField] float _damage;
 
+    [Header("Weapon")]
+    [SerializeField] bool _asWeapon;
+    [SerializeField] float _weaponDamage;
+    [SerializeField] float _weaponAttackDistance;
+    [SerializeField] float _weaponSweepAngle;
+
+    [Header("Capacity")]
+    [SerializeField] float _distanceMultiplier;
+    [SerializeField] bool _asunlockDistanceMultiplier;
+    [SerializeField] float _damageMultiplier;
+    [SerializeField] bool _asUnlockDamageMultiplier;
+
 
     [Header("Debug")]
+    [SerializeField] bool _showRaycast;
     [SerializeField] bool _canAttack;
 
 
     public bool CanAttack { get => _canAttack; }
 
+    public bool AsWeapon { get => _asWeapon; set => _asWeapon = value; }
+
+    public bool AsUnlockDistanceMultiplier
+    {
+        get => _asunlockDistanceMultiplier;
+        set => _asunlockDistanceMultiplier = value;
+    }
+
+    public bool AsUnlockDamageMultiplier
+    {
+        get => _asUnlockDamageMultiplier;
+        set => _asUnlockDamageMultiplier = value;
+    }
+
     // Event Action
     public event Action KillProps;
 
 
-    public float SweepAngle
+    public float WeaponSweepAngle
     {
-        get => _sweepAngle;
+        get => _weaponSweepAngle;
 
         set
         {
-            if ( value >= _maxSweepAngle )
-                _sweepAngle = _maxSweepAngle;
+            if ( value >= _weaponSweepAngle )
+                _weaponSweepAngle = _maxSweepAngle;
             else if ( value <= 0 )
-                _sweepAngle = 0;
+                _weaponSweepAngle = 0;
             else
-                _sweepAngle = value;
+                _weaponSweepAngle = value;
         }
+    }
+
+    public float WeaponDamage
+    {
+        get => _weaponDamage;
+
+        set => _weaponDamage = value;
+    }
+
+    public float WeaponAttackDistance
+    {
+        get => _weaponAttackDistance;
+
+        set => _weaponAttackDistance = value;
     }
 
     void Awake()
@@ -66,23 +107,29 @@ public class PlayerAttackSystem : MonoBehaviour
 
     void Update()
     {
-        int nbRay = (int) Math.Floor( Math.Floor( _sweepAngle  * 2 ) / 2 );
-
-        for ( int i = 0; i < nbRay; i++ )
+        if (_showRaycast)
         {
-            float angle = nbRay <= 1
-                ? 0f
-                : Mathf.Lerp(-_sweepAngle / 2f, _sweepAngle / 2f, (float)i / (nbRay - 1));
+            float sweepAngle = _asWeapon ? _weaponSweepAngle : _sweepAngle;
+            float attackDistance = _asWeapon ? _weaponAttackDistance : _raycastDistance;
 
-            Vector3 direction =
-                Quaternion.AngleAxis(angle, _PReference.PlayerCamera.transform.up) *
-                _PReference.PlayerCamera.transform.forward;
+            int nbRay = (int) Math.Floor( Math.Floor( sweepAngle  * 2 ) / 2 );
 
-            Debug.DrawRay(
-                _PReference.PlayerCamera.transform.position,
-                direction * _raycastDistance,
-                Color.red
-            );
+            for ( int i = 0; i < nbRay; i++ )
+            {
+                float angle = nbRay <= 1
+                    ? 0f
+                    : Mathf.Lerp(-sweepAngle / 2f, sweepAngle / 2f, (float)i / (nbRay - 1));
+
+                Vector3 direction =
+                    Quaternion.AngleAxis(angle, _PReference.PlayerCamera.transform.up) *
+                    _PReference.PlayerCamera.transform.forward;
+
+                Debug.DrawRay(
+                    _PReference.PlayerCamera.transform.position,
+                    direction * attackDistance * (float) (_asunlockDistanceMultiplier ? _distanceMultiplier : 1),
+                    Color.red
+                );
+            }
         }
     }
 
@@ -91,6 +138,8 @@ public class PlayerAttackSystem : MonoBehaviour
     {
         if( _canAttack )
         {
+            float sweepAngle = _asWeapon ? _weaponSweepAngle : _sweepAngle;
+            float attackDistance = _asWeapon ? _weaponAttackDistance : _raycastDistance;
 
             // Wait for the start of the animation
             await Awaitable.WaitForSecondsAsync(0.1f);
@@ -102,13 +151,13 @@ public class PlayerAttackSystem : MonoBehaviour
             // Wait for the moment where the animation attack
             await Awaitable.WaitForSecondsAsync(0.5f);
 
-            int nbRay = (int) Math.Floor( Math.Floor( _sweepAngle  * 2 ) / 2 );
+            int nbRay = (int) Math.Floor( Math.Floor( sweepAngle  * 2 ) / 2 );
 
             for ( int i = 0; i < nbRay; i++ )
             {
                 float angle = nbRay <= 1
                     ? 0f
-                    : Mathf.Lerp(-_sweepAngle / 2f, _sweepAngle / 2f, (float)i / (nbRay - 1));
+                    : Mathf.Lerp(-sweepAngle / 2f, sweepAngle / 2f, (float)i / (nbRay - 1));
 
                 Vector3 direction =
                     Quaternion.AngleAxis(angle, _PReference.PlayerCamera.transform.up) *
@@ -119,7 +168,7 @@ public class PlayerAttackSystem : MonoBehaviour
                 Hits = Physics.RaycastAll(
                     _PReference.PlayerCamera.transform.position,
                     direction,
-                    _raycastDistance
+                    attackDistance * (float) (_asunlockDistanceMultiplier ? _distanceMultiplier : 1)
                 );
 
                 foreach( RaycastHit hit in Hits )
@@ -134,7 +183,6 @@ public class PlayerAttackSystem : MonoBehaviour
                         ComponentGetter OUT;
                         ctxObj.TryGetComponent<ComponentGetter>(out OUT);
                         AttackEnnemi(OUT.HealthController);
-                        return;
                     }
                 }
             }
@@ -149,7 +197,9 @@ public class PlayerAttackSystem : MonoBehaviour
         {
             ctx.PropsDeath += HandleKillProps;
 
-            ctx.GetAttacked(_damage);
+            float damage = _asWeapon ? _weaponDamage : _damage;
+
+            ctx.GetAttacked(damage);
 
             ctx.PropsDeath -= HandleKillProps;
         }

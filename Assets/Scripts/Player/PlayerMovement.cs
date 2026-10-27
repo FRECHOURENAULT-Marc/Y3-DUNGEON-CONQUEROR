@@ -35,6 +35,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Vector2 _lookDirection;
     [SerializeField] float _lookMultiplier;
 
+    [Header("Capacity")]
+    [SerializeField] float _speedMultiplier;
+    [SerializeField] bool _asUnlockSpeedMultiplier;
+    [SerializeField] bool _asUnlockDoubleJump;
+    [SerializeField] bool _asUnlockDash;
+
     float _cameraPitch;
     float _cameraYawOffset;
 
@@ -48,8 +54,6 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] bool _canDash;
     [SerializeField] bool _canDoubleJump;
-    [SerializeField] bool _asUnlockDash;
-    [SerializeField] bool _asUnlockDoubleJump;
     bool _isDashing;
     float _dashTimeRemaining;
     Vector3 _dashDirection;
@@ -58,6 +62,7 @@ public class PlayerMovement : MonoBehaviour
 
     public bool AsUnlockDash { get => _asUnlockDash; set => _asUnlockDash = value; }
     public bool AsUnlockDoubleJump { get => _asUnlockDoubleJump; set => _asUnlockDoubleJump = value; }
+    public bool AsUnlockSpeedMultiplier { get => _asUnlockSpeedMultiplier; set => _asUnlockSpeedMultiplier = value; }
 
     public bool IsGrounded { get => _isGrounded; }
     public bool PredictedIsGrounded { get => _predictedIsGrounded; }
@@ -148,9 +153,9 @@ public class PlayerMovement : MonoBehaviour
             if ( _dashTimeRemaining > 0f )
             {
                 playerRigidbody.linearVelocity = new Vector3(
-                    _dashDirection.x * _dashSpeed,
+                    _dashDirection.x * _dashSpeed * (float) (_asUnlockSpeedMultiplier ? 1.5 : 1),
                     velocity.y,
-                    _dashDirection.z * _dashSpeed
+                    _dashDirection.z * _dashSpeed * (float) (_asUnlockSpeedMultiplier ? 1.5 : 1)
                 );
                 return;
             }
@@ -165,7 +170,7 @@ public class PlayerMovement : MonoBehaviour
 
             Vector3 direction = _PReference.PlayerRoot.transform.TransformDirection(_moveDirection);
             
-            float speed = _movementSpeed + (_isOnSprint ? _sprintAdditionnalSpeed : 0f);
+            float speed = (_movementSpeed + (_isOnSprint ? _sprintAdditionnalSpeed : 0f)) * (float) (_asUnlockSpeedMultiplier ? _speedMultiplier : 1);
 
             rb.linearVelocity = new Vector3(
                 direction.x * speed,

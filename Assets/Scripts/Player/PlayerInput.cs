@@ -13,6 +13,7 @@ public class PlayerInput : MonoBehaviour
     [SerializeField] InputActionReference _lookAction;
     [SerializeField] InputActionReference _sprintAction;
     [SerializeField] InputActionReference _dashAction;
+    [SerializeField] InputActionReference _dropWeapon;
 
 
     [SerializeField] InputActionReference _quitApp;
@@ -29,6 +30,8 @@ public class PlayerInput : MonoBehaviour
     public event Action<bool> OnSprint;
     public event Action<Vector2> OnLook;
 
+    public event Action DropWeapon;
+
     public event Action QuitApp;
 
     private void Start()
@@ -40,6 +43,7 @@ public class PlayerInput : MonoBehaviour
         _lookAction.action.Enable();
         _sprintAction.action.Enable();
         _dashAction.action.Enable();
+        _dropWeapon.action.Enable();
 
         _quitApp.action.Enable();
         _quitApp.action.started += HandleQuitGame;
@@ -62,6 +66,8 @@ public class PlayerInput : MonoBehaviour
 
         _sprintAction.action.performed += HandleSprint;
         _sprintAction.action.canceled += HandleSprintCanceled;
+
+        _dropWeapon.action.started += HandleDropWeapon;
     }
 
     private void OnDestroy()
@@ -77,6 +83,8 @@ public class PlayerInput : MonoBehaviour
         _lookAction.action.performed -= HandleLook;
         _sprintAction.action.performed -= HandleSprint;
         _sprintAction.action.canceled -= HandleSprintCanceled;
+
+        _dropWeapon.action.started -= HandleDropWeapon;
 
         _quitApp.action.started -= HandleQuitGame;
     }
@@ -136,5 +144,10 @@ public class PlayerInput : MonoBehaviour
     void HandleDash(InputAction.CallbackContext context)
     {
         OnDash?.Invoke();
+    }
+
+    void HandleDropWeapon(InputAction.CallbackContext context)
+    {
+        DropWeapon?.Invoke();
     }
 }
