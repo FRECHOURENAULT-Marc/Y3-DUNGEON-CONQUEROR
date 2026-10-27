@@ -159,3 +159,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BiomeDefault
   roomRoot: {fileID: 0}
   _centerCubePrefab: {fileID: 1876102995237510905}
+  _inputForFinishing: {fileID: 7040659881675835329, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _maxDistanceActivation: 50

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc43ccb9a5b47e248b8681ba74e8e83e, type: 3}
-  m_Name: RoomStyleSO(DoorOpen)
+  m_Name: RoomStyleSO
   m_EditorClassIdentifier: Assembly-CSharp::RoomStyleSO
   minWidth: 32
   maxWidth: 64

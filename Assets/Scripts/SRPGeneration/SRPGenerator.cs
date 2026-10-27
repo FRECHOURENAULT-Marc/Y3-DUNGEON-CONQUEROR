@@ -10,6 +10,9 @@ using Random = UnityEngine.Random;
 
 public class SRPGenerator : MonoBehaviour
 {
+    [Header("Player")]
+    [SerializeField] GameObject playerGo;
+    
     [Header("Room Style")] 
     [SerializeField] RoomStyleSO roomStyle;    
     
@@ -17,6 +20,7 @@ public class SRPGenerator : MonoBehaviour
     [SerializeField] MapStyleSO mapStyle;
     
     [Header("Generation")]
+    [SerializeField] bool generateWhenStarting;
     [Range(0, 100000)] 
     [SerializeField] int maxTries;    
     [Range(0, 1000)] 
@@ -29,6 +33,9 @@ public class SRPGenerator : MonoBehaviour
     List<SRPRoom> _generatedRooms;
     List<SRPRoom> _uselessRooms;
     List<SRPRoom> _validatedRooms;
+
+    SRPRoom startRoom;
+    SRPRoom endRoom;
     
     // Debug
     List<RayData> _rays = new();
@@ -47,12 +54,21 @@ public class SRPGenerator : MonoBehaviour
     
     private void Reset()
     {
+        generateWhenStarting = false;
+        
         maxTries = 100;
         target = 10;
         
         seed = 0;
         randomSeed = true;
         
+    }
+
+    async void Start()
+    {
+        if (generateWhenStarting == false)
+            return;
+        await GenerateAllSteps();
     }
 
     void OnDrawGizmos()
@@ -146,6 +162,9 @@ public class SRPGenerator : MonoBehaviour
             
             Debug.Log("Room at: " + r.global.transform.position + " has no connection.", r.global);
         }
+        
+        // Place Player at start
+        PlacePlayerAtStart();
     }
     
     
@@ -174,7 +193,7 @@ public class SRPGenerator : MonoBehaviour
 
 
             GameObject roomGo = Instantiate(roomStyle.rootPrefab, transform);
-            SRPRoom nSrpRoom = roomGo.AddComponent<SRPRoom>();
+            SRPRoom nSrpRoom = roomGo.GetComponent<SRPRoom>();
             nSrpRoom.root.name += i;
             nSrpRoom.global = Instantiate(roomStyle.roomPrefab, nSrpRoom.root.transform);
             
@@ -394,6 +413,9 @@ public class SRPGenerator : MonoBehaviour
                 BuildDoorLink(room, door, corridor);
                 BuildDoorLink(room, closestDoor, corridor);
 
+                door.otherDoor = closestDoor;
+                closestDoor.otherDoor = door;
+
                 FromGeneratedToValidate(room);
             }
 
@@ -475,7 +497,7 @@ public class SRPGenerator : MonoBehaviour
     [Button]
     void SelectStartAndEnd()
     {
-        if (mapStyle.startBehavior == null || mapStyle.endBehavior == null)
+        if (mapStyle.biomes.startBiome == null || mapStyle.biomes.endBiome == null)
         {
             Debug.LogWarning("Missing start room or end room in mapStyleSO", mapStyle);
             return;
@@ -513,20 +535,28 @@ public class SRPGenerator : MonoBehaviour
         int startId = Random.Range(0, startCandidates.Count);
         int endId = Random.Range(0, endCandidates.Count);
         
-        SRPRoom startRoom = startCandidates[startId];
-        SRPRoom endRoom = endCandidates[endId];
+        startRoom = startCandidates[startId];
+        endRoom = endCandidates[endId];
 
         if (startRoom == endRoom)
         {
             Debug.LogError("Start and end room are the same.");
             return;
         }
-        startRoom.biome = int.MaxValue;
-        endRoom.biome = int.MaxValue;
-        Instantiate(mapStyle.startBehavior, startRoom.root.transform)
-            .transform.localPosition = Vector3.zero;
-        Instantiate(mapStyle.endBehavior, endRoom.root.transform)
-            .transform.localPosition = Vector3.zero;
+
+        BiomeStyleSO startBiome = mapStyle.biomes.startBiome;
+        BiomeStyleSO endBiome = mapStyle.biomes.endBiome;
+        
+        CreateBiomeBehavior(startBiome, startRoom).transform.localPosition = Vector3.zero;
+        CreateBiomeBehavior(endBiome, endRoom).transform.localPosition = Vector3.zero;
+        // startRoom.biome = startBiome.value;
+        // endRoom.biome =  endBiome.value;
+        // GameObject startGo = Instantiate(startBiome.biomeBehaviorPrefab, startRoom.root.transform);
+        // startGo.transform.localPosition = Vector3.zero;
+        // startGo.GetComponent<IBiomeBehavior>().roomRoot = startRoom.root;
+        // GameObject endGo = Instantiate(endBiome.biomeBehaviorPrefab, endRoom.root.transform);
+        // endGo.transform.localPosition = Vector3.zero;
+        // endGo.GetComponent<IBiomeBehavior>().roomRoot = endRoom.root;
     }
     
     [Button]
@@ -538,28 +568,35 @@ public class SRPGenerator : MonoBehaviour
                 continue;
             
             float sum = 0f;
-            foreach (var biomeData in mapStyle.biome.biomeList)
+            foreach (var biomeData in mapStyle.biomes.biomeList)
                 sum += biomeData.prob;          
             float rdmBiome = Random.Range(0f, sum);
             
             // Select Biome
-            foreach (var biomeData in mapStyle.biome.biomeList)
+            foreach (var biomeData in mapStyle.biomes.biomeList)
             {
                 rdmBiome -= biomeData.prob;
                 if (rdmBiome > 0) continue;
-                r.biome = biomeData.value;
+                r.biome = biomeData.style.value;
 
                 // Add Biome Behavior
-                if(biomeData.biomeBehaviorPrefab == null) 
+                if(biomeData.style.biomeBehaviorPrefab == null) 
                     break;
-                GameObject biomeGo = Instantiate(biomeData.biomeBehaviorPrefab, r.root.transform);
-                biomeGo.transform.localPosition = Vector3.zero;
-                biomeGo.GetComponent<DefaultBiome>().roomRoot = r.root;
+
+                CreateBiomeBehavior(biomeData.style, r);
+                // GameObject biomeGo = Instantiate(biomeData.style.biomeBehaviorPrefab, r.root.transform);
+                // biomeGo.transform.localPosition = Vector3.zero;
+                // biomeGo.GetComponent<IBiomeBehavior>().roomRoot = r.root;
                 break;
             }
         }
     }
 
+    [Button]
+    void PlacePlayerAtStart()
+    {
+        playerGo.transform.position = startRoom.root.transform.position;
+    }
     
     [Button]
     void ResetAll()
@@ -796,6 +833,19 @@ public class SRPGenerator : MonoBehaviour
             a = -a;
         a.y = 0f;
         return a.normalized;
+    }
+
+    GameObject CreateBiomeBehavior(BiomeStyleSO style, SRPRoom room)
+    {
+        GameObject biomeGo = Instantiate(style.biomeBehaviorPrefab, room.root.transform);
+        biomeGo.transform.localPosition = Vector3.zero;
+        
+        IBiomeBehavior biome = biomeGo.GetComponent<IBiomeBehavior>();
+        biome.roomRoot = room.root;
+        
+        room.biome = style.value;
+        
+        return biomeGo;
     }
     
     /// <summary>

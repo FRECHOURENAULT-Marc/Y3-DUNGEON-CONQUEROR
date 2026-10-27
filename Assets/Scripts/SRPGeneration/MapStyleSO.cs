@@ -4,12 +4,7 @@ using UnityEngine;
 public class MapStyleSO : ScriptableObject
 {
     [Header("Biomes")]
-    public MapBiomeSO biome;    
-    
-    [Header("Start")]
-    public GameObject startBehavior;    
-    [Header("End")]
-    public GameObject endBehavior;
+    public MapBiomesSO biomes;
     
     [Header("Size")]
     [Range(0, 1000)] public int width;

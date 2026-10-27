@@ -19,8 +19,9 @@ public class DefaultDoor : IDoor
         closeDoor.transform.localPosition = Vector3.zero;
     }
     
-    protected override void OnRoomFinished()
+    protected override void OpenDoor()
     {
+        base.OpenDoor();
         Utils.Destroy(closeDoor);
         openDoor = Instantiate(openDoorPrefab, transform);
         openDoor.transform.localPosition = Vector3.zero;

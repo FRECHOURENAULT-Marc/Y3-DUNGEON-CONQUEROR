@@ -275,8 +275,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 674eaa46b6a01f247bb34e2a553d5586, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SRPGenerator
+  playerGo: {fileID: 1987517914}
   roomStyle: {fileID: 11400000, guid: 0c219556ff2e5a741af98956bf2e6923, type: 2}
   mapStyle: {fileID: 11400000, guid: ffd1e248f9049ab44add053f272111be, type: 2}
+  generateWhenStarting: 1
   maxTries: 500
   target: 10
   seed: 2127556595
@@ -293,8 +295,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 902908023}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &553042298
@@ -362,7 +363,7 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2853a2b82cad2764baad5d4e59431cb9, type: 3}
---- !u!1 &902908022
+--- !u!1 &800694877
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -370,49 +371,44 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 902908023}
-  - component: {fileID: 902908024}
+  - component: {fileID: 800694879}
+  - component: {fileID: 800694878}
   m_Layer: 0
-  m_Name: RoomRoot(Clone)
+  m_Name: DependenciesInjector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &902908023
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 902908022}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 460811842}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &902908024
+--- !u!114 &800694878
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 902908022}
+  m_GameObject: {fileID: 800694877}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b281345fe79c1e4681809f80c4179b4, type: 3}
+  m_Script: {fileID: 11500000, guid: 85fa4789090285a4691b6f3b5dbc4320, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SRPRoom
-  root: {fileID: 0}
-  global: {fileID: 0}
-  floor: {fileID: 0}
-  walls: []
-  doors: []
-  corridors: []
-  biome: -2147483648
+  m_EditorClassIdentifier: Assembly-CSharp::DependenciesInjector
+  _playerDeps:
+    _mainParent: {fileID: 1987517914}
+--- !u!4 &800694879
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 800694877}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 126.104, y: 0, z: 24.15257}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &961739749
 GameObject:
   m_ObjectHideFlags: 0
@@ -550,6 +546,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1987517914 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8444025307355289438, guid: 2853a2b82cad2764baad5d4e59431cb9, type: 3}
+  m_PrefabInstance: {fileID: 553042298}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -558,3 +559,4 @@ SceneRoots:
   - {fileID: 203844589}
   - {fileID: 460811842}
   - {fileID: 553042298}
+  - {fileID: 800694879}

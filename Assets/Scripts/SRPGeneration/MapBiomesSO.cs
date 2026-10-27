@@ -2,23 +2,20 @@ using System;
 using System.Collections.Generic;
 using NaughtyAttributes;
 using UnityEngine;
-using UnityEngine.Events;
 
 [Serializable]
 public class BiomeData
 {
-    public string name;
-    [Range(0f, 1f)]
+    public BiomeStyleSO style;
     public float prob;
-    public int value;
-    public GameObject biomeBehaviorPrefab;
 }
 
-
-[CreateAssetMenu(fileName = "MapBiomeSO", menuName = "SO/Gen/BiomeSO")]
-public class MapBiomeSO : ScriptableObject
+[CreateAssetMenu(fileName = "MapBiomesSO", menuName = "SO/Gen/MapBiomesSO")]
+public class MapBiomesSO : ScriptableObject
 {
     [Header("Biome list")]
+    public BiomeStyleSO startBiome;
+    public BiomeStyleSO endBiome;
     public List<BiomeData> biomeList;
 
     [Button]
@@ -30,7 +27,7 @@ public class MapBiomeSO : ScriptableObject
         if(b == null)
             return int.MinValue;
 
-        return b.value;
+        return b.style.value;
     }       
     public float GetProbability(string nameId)
     {
@@ -40,11 +37,19 @@ public class MapBiomeSO : ScriptableObject
 
         return b.prob;
     }    
+    public BiomeStyleSO GetBiomeStyle(string nameId)
+    {
+        BiomeData b = GetBiomeData(nameId);
+        if(b == null)
+            return null;
+
+        return b.style;
+    }    
     public BiomeData GetBiomeData(string nameId)
     {
         foreach (var b in biomeList)
         {
-            if(b.name == nameId)
+            if(b.style.biomeName == nameId)
                 return b;
         }
         
@@ -55,8 +60,5 @@ public class MapBiomeSO : ScriptableObject
     private void Reset()
     {
         biomeList ??= new List<BiomeData>();
-        if (biomeList.Count > 0)
-            return;
-        biomeList.Add(new() { name = "Default", value = 0, prob = 1f});
     }
 }

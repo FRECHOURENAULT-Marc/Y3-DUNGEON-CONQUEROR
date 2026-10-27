@@ -10,14 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eafadfe38a07eed4a9755fe4843d3827, type: 3}
-  m_Name: DefaultBiomesSO
+  m_Name: DefaultMapBiomesSO
   m_EditorClassIdentifier: Assembly-CSharp::MapBiomeSO
+  startBiome: {fileID: 11400000, guid: c44419972e2aee043930b2dcf6439196, type: 2}
+  endBiome: {fileID: 11400000, guid: 85c0adb938b147a429011fe9ecef3e10, type: 2}
   biomeList:
-  - name: Default1
+  - style: {fileID: 11400000, guid: fe25a254c308b754fafda4543665ca0d, type: 2}
     prob: 0.5
-    value: 0
-    biomeBehaviorPrefab: {fileID: 8761042825383401470, guid: 9cf9a14fcc33f964e81ab1f98a55b8ef, type: 3}
-  - name: Default2
+  - style: {fileID: 11400000, guid: 1de81c5b37be443498140c9bf25ac2dd, type: 2}
     prob: 0.5
-    value: 1
-    biomeBehaviorPrefab: {fileID: 8761042825383401470, guid: 902d9365d223eef4ea9de1b3d966cc93, type: 3}
