@@ -9,14 +9,17 @@ public class PlayerAttackSystem : MonoBehaviour
 {
     
     [Header("References")]
-    [SerializeField] Camera _playerCamera;
-    [SerializeField] PlayerInput _playerInput;
+    [SerializeField] PlayerReferences _PReference;
+
+    // [SerializeField] Camera _playerCamera;
+    // [SerializeField] PlayerInput _playerInput;
 
 
     [Header("Setting")]
     [SerializeField] float _raycastDistance;
     [SerializeField] float _sweepAngle;
     [SerializeField] float _maxSweepAngle;
+    [SerializeField] float _damage;
 
 
     [Header("Debug")]
@@ -24,6 +27,10 @@ public class PlayerAttackSystem : MonoBehaviour
 
 
     public bool CanAttack { get => _canAttack; }
+
+    // Event Action
+    public event Action KillProps;
+
 
     public float SweepAngle
     {
@@ -48,12 +55,12 @@ public class PlayerAttackSystem : MonoBehaviour
 
     void Start()
     {
-        _playerInput.OnAttack += HandleAttack;
+        _PReference.PlayerInput.OnAttack += HandleAttack;
     }
 
     void OnDestroy()
     {
-        _playerInput.OnAttack -= HandleAttack;
+        _PReference.PlayerInput.OnAttack -= HandleAttack;
     }
 
 
@@ -68,11 +75,11 @@ public class PlayerAttackSystem : MonoBehaviour
                 : Mathf.Lerp(-_sweepAngle / 2f, _sweepAngle / 2f, (float)i / (nbRay - 1));
 
             Vector3 direction =
-                Quaternion.AngleAxis(angle, _playerCamera.transform.up) *
-                _playerCamera.transform.forward;
+                Quaternion.AngleAxis(angle, _PReference.PlayerCamera.transform.up) *
+                _PReference.PlayerCamera.transform.forward;
 
             Debug.DrawRay(
-                _playerCamera.transform.position,
+                _PReference.PlayerCamera.transform.position,
                 direction * _raycastDistance,
                 Color.red
             );
@@ -104,13 +111,13 @@ public class PlayerAttackSystem : MonoBehaviour
                     : Mathf.Lerp(-_sweepAngle / 2f, _sweepAngle / 2f, (float)i / (nbRay - 1));
 
                 Vector3 direction =
-                    Quaternion.AngleAxis(angle, _playerCamera.transform.up) *
-                    _playerCamera.transform.forward;
+                    Quaternion.AngleAxis(angle, _PReference.PlayerCamera.transform.up) *
+                    _PReference.PlayerCamera.transform.forward;
 
                 
                 RaycastHit[] Hits;
                 Hits = Physics.RaycastAll(
-                    _playerCamera.transform.position,
+                    _PReference.PlayerCamera.transform.position,
                     direction,
                     _raycastDistance
                 );
@@ -140,8 +147,18 @@ public class PlayerAttackSystem : MonoBehaviour
     {
         if (ctx != null)
         {
-            ctx.GetAttacked(10);
+            ctx.PropsDeath += HandleKillProps;
+
+            ctx.GetAttacked(_damage);
+
+            ctx.PropsDeath -= HandleKillProps;
         }
+    }
+
+    void HandleKillProps()
+    {
+        Debug.Log("Killed props");
+        KillProps?.Invoke();
     }
 
 

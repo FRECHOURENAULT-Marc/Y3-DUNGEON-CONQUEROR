@@ -1,16 +1,21 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerInput : MonoBehaviour
 {
     [Header("Input Actions References")]
-    [SerializeField] InputActionReference _moveAction; // good
-    [SerializeField] InputActionReference _jumpAction; // good
+    [SerializeField] InputActionReference _moveAction;
+    [SerializeField] InputActionReference _jumpAction;
     [SerializeField] InputActionReference _interactAction;
     [SerializeField] InputActionReference _attackAction;
-    [SerializeField] InputActionReference _lookAction; // good
-    [SerializeField] InputActionReference _sprintAction; // good
+    [SerializeField] InputActionReference _lookAction;
+    [SerializeField] InputActionReference _sprintAction;
+    [SerializeField] InputActionReference _dashAction;
+
+
+    [SerializeField] InputActionReference _quitApp;
 
 
     // Events for input actions
@@ -19,9 +24,12 @@ public class PlayerInput : MonoBehaviour
     public event Action OnInteract;
     public event Action OnAttack;
 
+    public event Action OnDash;
+
     public event Action<bool> OnSprint;
     public event Action<Vector2> OnLook;
 
+    public event Action QuitApp;
 
     private void Start()
     {
@@ -31,10 +39,16 @@ public class PlayerInput : MonoBehaviour
         _attackAction.action.Enable();
         _lookAction.action.Enable();
         _sprintAction.action.Enable();
+        _dashAction.action.Enable();
+
+        _quitApp.action.Enable();
+        _quitApp.action.started += HandleQuitGame;
 
 
         _moveAction.action.performed += HandleMove;
         _moveAction.action.canceled += HandleMoveCanceled;
+
+        _dashAction.action.started += HandleDash;
 
         _jumpAction.action.performed += HandleJump;
 
@@ -57,10 +71,19 @@ public class PlayerInput : MonoBehaviour
         _interactAction.action.started -= HandleInteract;
         _attackAction.action.performed -= HandleAttack;
         _moveAction.action.canceled -= HandleMoveCanceled;
+        _dashAction.action.started -= HandleDash;
+
 
         _lookAction.action.performed -= HandleLook;
         _sprintAction.action.performed -= HandleSprint;
         _sprintAction.action.canceled -= HandleSprintCanceled;
+
+        _quitApp.action.started -= HandleQuitGame;
+    }
+
+    void HandleQuitGame(InputAction.CallbackContext context)
+    {
+        QuitApp?.Invoke();
     }
 
     private void HandleMove(InputAction.CallbackContext context)
@@ -108,5 +131,10 @@ public class PlayerInput : MonoBehaviour
     private void HandleSprintCanceled(InputAction.CallbackContext context)
     {
         OnSprint?.Invoke(false);
+    }
+
+    void HandleDash(InputAction.CallbackContext context)
+    {
+        OnDash?.Invoke();
     }
 }
