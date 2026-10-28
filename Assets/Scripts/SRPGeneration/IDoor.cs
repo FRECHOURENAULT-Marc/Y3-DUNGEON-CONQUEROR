@@ -7,25 +7,36 @@ public class IDoor : MonoBehaviour
     [Header("SRP Common Fields")]
     
     public SRPRoom roomFrom;
+    public IDoor otherDoor;
     
     public GameObject corridorStart;
     public List<GameObject> doorWalls;
     public bool isUsed;
+    public bool isOpen;
     
-    protected virtual void Reset()
+    protected virtual void Reset() // override if needed
     {
         isUsed = false;
+        isOpen = false;
     }
     
-    protected virtual void OnDestroy()
+    protected virtual void OnDestroy() // override if needed
     {
         Utils.DestroyObjectsInList(ref doorWalls);
+        if(roomFrom != null)
+            roomFrom.OnFinished -= OpenDoor;
     }
 
-    public virtual void Init()
+    public virtual void Init() // override if needed
     {
-        roomFrom.OnFinished += OnRoomFinished;
+        roomFrom.OnFinished += OpenDoor;
     }
-    
-    protected virtual void OnRoomFinished() {}
+
+    protected virtual void OpenDoor() // override
+    {
+        isOpen = true;
+        if (otherDoor.isOpen)
+            return;
+        otherDoor.OpenDoor();
+    }
 }

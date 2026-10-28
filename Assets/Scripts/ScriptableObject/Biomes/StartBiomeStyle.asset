@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceeeebef74f839a40acb89626d86515c, type: 3}
+  m_Name: StartBiomeStyle
+  m_EditorClassIdentifier: Assembly-CSharp::BiomeStyleSO
+  biomeName: Start
+  value: -1
+  biomeBehaviorPrefab: {fileID: 8761042825383401470, guid: 0908b7463386d8049a0156cfeca15c51, type: 3}

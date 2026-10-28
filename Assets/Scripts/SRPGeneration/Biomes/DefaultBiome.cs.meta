@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ea5a25f8b215a8640aa84881019054cf
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - roomRoot: {instanceID: 0}
+  - _centerCubePrefab: {instanceID: 0}
+  - _inputForFinishing: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
