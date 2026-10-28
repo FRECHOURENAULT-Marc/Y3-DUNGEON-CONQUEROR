@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 4107816378264795178}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -2}
+  m_LocalPosition: {x: 0, y: 0, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -59,7 +59,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6191161252656366260}
@@ -78,9 +78,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DefaultDoor
   roomFrom: {fileID: 0}
+  otherDoor: {fileID: 0}
   corridorStart: {fileID: 4107816378264795178}
   doorWalls: []
   isUsed: 0
+  isOpen: 0
   closeDoorPrefab: {fileID: 8920135381559222656, guid: 7f2d07c37e0074346b3b67ddb9b8b867, type: 3}
   openDoorPrefab: {fileID: 8920135381559222656, guid: eb8f93e9ed031a84da0bc8dc8dc46aaf, type: 3}
 --- !u!65 &913157119651732785
@@ -102,5 +104,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.5, y: 3, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 4, y: 4, z: 1}
+  m_Center: {x: 0, y: 0.5, z: 0}

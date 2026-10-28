@@ -1,10 +1,11 @@
 using UnityEngine;
 
-public class MaterialTillingByScale : MonoBehaviour
+public class MaterialTilingByScale : MonoBehaviour
 {
     [SerializeField] Vector2 factors;
     [SerializeField] bool ignoreX;
     [SerializeField] bool ignoreY;
+    [SerializeField] bool useZAsY;
 
     void Reset()
     {
@@ -12,6 +13,7 @@ public class MaterialTillingByScale : MonoBehaviour
         
         ignoreX = false;
         ignoreY = false;
+        useZAsY = false;
     }
     
     void Start()
@@ -20,6 +22,9 @@ public class MaterialTillingByScale : MonoBehaviour
             ignoreX ? 1f : transform.lossyScale.x * factors.x, 
             ignoreY ? 1f : transform.lossyScale.y * factors.y
         );
+
+        if (useZAsY)
+            texScale.y = transform.lossyScale.z * factors.y;
         
         GetComponent<MeshRenderer>().material.mainTextureScale = texScale;
     }
