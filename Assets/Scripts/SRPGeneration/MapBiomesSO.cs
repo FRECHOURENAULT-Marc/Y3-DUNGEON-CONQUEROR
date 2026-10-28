@@ -7,9 +7,9 @@ using UnityEngine;
 public class BiomeData
 {
     public BiomeStyleSO style;
-    public float prob;
-    public int maxOccurrences;
-    [HideInInspector] public int occurrences;
+    public float prob = 1f;
+    public int maxOccurrences = int.MaxValue;
+    [HideInInspector] public int occurrences = 0;
 }
 
 [CreateAssetMenu(fileName = "MapBiomesSO", menuName = "SO/Gen/MapBiomesSO")]
@@ -58,6 +58,8 @@ public class MapBiomesSO : ScriptableObject
         Debug.LogWarning("No biome found with name " +  nameId);
         return null;
     }
+    
+    // Unity
     
     private void Reset()
     {

@@ -28,3 +28,4 @@ MonoBehaviour:
   wallPrefab: {fileID: 4715274132501412591, guid: 7481f8bd55c2eae49839733bdf5e1e84, type: 3}
   doorPrefab: {fileID: 5247217859990287134, guid: ba84a2bc1007f4a4ab8f4e53b830a0f0, type: 3}
   corridorPrefab: {fileID: 6332543688718896247, guid: f20ffc6ebf70bd94996020c9abaecf55, type: 3}
+  corridorLinkMat: {fileID: 2100000, guid: abf168830e83d264faa8fadb4d51cd13, type: 2}

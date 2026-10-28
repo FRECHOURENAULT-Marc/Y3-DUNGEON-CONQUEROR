@@ -90,24 +90,25 @@ public class SRPGenerator : MonoBehaviour
     [Button]
     public async Task GenerateAllSteps()
     {
+        DateTime last = DateTime.Now;
         DateTime begin = DateTime.Now;
 
         ResetAll();
         InitSeed();
         
-        double resetDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond; // Debug
-        begin = DateTime.Now;
+        double resetDt = Utils.GetElapsedTime(last, DateTime.Now).Millisecond; // Debug
+        last = DateTime.Now;
         Debug.Log("Generation started..."); // Debug
         
         GenerateRooms();
         
-        double genRoomDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond; // Debug
-        begin = DateTime.Now;
+        double genRoomDt = Utils.GetElapsedTime(last, DateTime.Now).Millisecond; // Debug
+        last = DateTime.Now;
         
         BuildRooms();
         
-        double buildRoomDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond; // Debug
-        begin = DateTime.Now;
+        double buildRoomDt = Utils.GetElapsedTime(last, DateTime.Now).Millisecond; // Debug
+        last = DateTime.Now;
 
         // wait physics update (rework without physics ? like obb class)
         await Awaitable.WaitForSecondsAsync(Time.fixedDeltaTime, _cs.Token);
@@ -117,20 +118,19 @@ public class SRPGenerator : MonoBehaviour
         FromGeneratedToValidate(_generatedRooms[0]); // Add first room 
         BuildCorridors();
         
-        double buildCorridorDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond; // Debug
-        begin = DateTime.Now;
+        double buildCorridorDt = Utils.GetElapsedTime(last, DateTime.Now).Millisecond; // Debug
+        last = DateTime.Now;
         
         RemoveNotConnectedRooms(); // Destroy room not connected
         ReplaceNotConnectedDoors(); // Replace useless doors by walls
         
-        double cleanDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond;
-        begin = DateTime.Now;
+        double cleanDt = Utils.GetElapsedTime(last, DateTime.Now).Millisecond;
+        last = DateTime.Now;
 
         SelectStartAndEnd(); // Place start room and end room
         GenerateBiomes(); // Choose biome for each room
         
-        double customRoomDt = Utils.GetElapsedTime(begin, DateTime.Now).Millisecond; // Debug
-        begin = DateTime.Now;
+        double customRoomDt = Utils.GetElapsedTime(last, DateTime.Now).Millisecond; // Debug
         
         // Debug
         Debug.Log(
@@ -526,9 +526,6 @@ public class SRPGenerator : MonoBehaviour
             return;
         }
         
-        Debug.Log("Start candidates : " + startCandidates.Count);
-        Debug.Log("End candidates : " + endCandidates.Count);
-        
         int startId = Random.Range(0, startCandidates.Count);
         int endId = Random.Range(0, endCandidates.Count);
         
@@ -570,6 +567,9 @@ public class SRPGenerator : MonoBehaviour
             // Select Biome
             foreach (var biomeData in mapStyle.biomes.biomeList)
             {
+                if(biomeData.occurrences >= biomeData.maxOccurrences)
+                    continue;
+                
                 rdmBiome -= biomeData.prob;
                 if (rdmBiome > 0) continue;
                 r.biome = biomeData.style.value;
@@ -578,6 +578,7 @@ public class SRPGenerator : MonoBehaviour
                 if(biomeData.style.biomeBehaviorPrefab == null) 
                     break;
 
+                biomeData.occurrences++;
                 CreateBiomeBehavior(biomeData.style, r);
                 break;
             }
@@ -833,7 +834,7 @@ public class SRPGenerator : MonoBehaviour
         biomeGo.transform.localPosition = Vector3.zero;
         
         IBiomeBehavior biome = biomeGo.GetComponent<IBiomeBehavior>();
-        biome.roomRoot = room.root;
+        biome.room = room;
         
         room.biome = style.value;
         
@@ -873,6 +874,7 @@ public class SRPGenerator : MonoBehaviour
         // Build mesh (room.root local space)
         List<Vector3> vertices = new();
         List<int> triangles = new();
+        List<Vector2> uvs = new();
         // Build 4 quads
         for (int i = 0; i < 4; i++)
         {
@@ -882,27 +884,28 @@ public class SRPGenerator : MonoBehaviour
             // i=2 : top
             // i=3 : left
             // Build a quad
-            Utils.AddQuad(vertices, triangles, room.root.transform,
+            Utils.AddQuad(vertices, triangles, uvs, room.root.transform,
                 d[i], d[next], c[next], c[i],
-                doubleSided: false);
+                true);
         }
 
         // Set up the new Mesh
         Mesh linkMesh = new Mesh { name = "DoorLinkMesh" };
         linkMesh.SetVertices(vertices);
         linkMesh.SetTriangles(triangles, 0);
+        linkMesh.SetUVs(0, uvs);
+        
         linkMesh.RecalculateNormals();
         linkMesh.RecalculateBounds();
         // And the Go
         GameObject linkGo = new GameObject("DoorLink");
         linkGo.transform.SetParent(room.root.transform, false);
         linkGo.AddComponent<MeshFilter>().sharedMesh = linkMesh;
-
-        // Take corridor Material for the Mesh Renderer (temp)
-        MeshRenderer corridorRenderer = roomStyle.corridorPrefab.GetComponentInChildren<MeshRenderer>();
+        
+        // Set custom material on link
         MeshRenderer linkMeshR = linkGo.AddComponent<MeshRenderer>();
-        if (corridorRenderer != null)
-            linkMeshR.sharedMaterial = corridorRenderer.sharedMaterial;
+        linkMeshR.sharedMaterial = roomStyle.corridorLinkMat;
+            
         // Mesh Collider
         MeshCollider linkMeshCol = linkGo.AddComponent<MeshCollider>();
         linkMeshCol.sharedMesh = linkMesh;

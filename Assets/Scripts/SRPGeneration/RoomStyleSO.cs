@@ -29,7 +29,7 @@ public class RoomStyleSO : ScriptableObject
     public GameObject doorPrefab;
     
     public GameObject corridorPrefab;
-    // may do a connected corridor-door material/prefab
+    public Material corridorLinkMat;
     
     private void Reset()
     {

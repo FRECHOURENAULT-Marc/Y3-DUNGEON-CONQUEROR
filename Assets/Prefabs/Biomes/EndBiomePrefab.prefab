@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 820582046107927424}
-  - component: {fileID: 2685520145599895721}
+  - component: {fileID: 4474540970360274258}
   m_Layer: 0
   m_Name: EndBiomePrefab
   m_TagString: Untagged
@@ -29,11 +29,10 @@ Transform:
   m_LocalPosition: {x: 62.63591, y: -4.99997, z: 198.48387}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4701960080868357936}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2685520145599895721
+--- !u!114 &4474540970360274258
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,77 +41,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 8761042825383401470}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea5a25f8b215a8640aa84881019054cf, type: 3}
+  m_Script: {fileID: 11500000, guid: c3dfac089dcad8d4d9942013e6b1668a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BiomeDefault
-  roomRoot: {fileID: 0}
-  _centerCubePrefab: {fileID: 1463937173174753283}
-  _inputForFinishing: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  _maxDistanceActivation: 50
---- !u!1001 &2930232433233929709
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 820582046107927424}
-    m_Modifications:
-    - target: {fileID: 4394024244983283182, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-      propertyPath: m_Name
-      value: EndRoom
-      objectReference: {fileID: 0}
-    - target: {fileID: 7632177601431540445, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.51522064
-      objectReference: {fileID: 0}
-    - target: {fileID: 7632177601431540445, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 4.99997
-      objectReference: {fileID: 0}
-    - target: {fileID: 7632177601431540445, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -7.1063538
-      objectReference: {fileID: 0}
-    - target: {fileID: 7632177601431540445, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7632177601431540445, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7632177601431540445, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7632177601431540445, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7632177601431540445, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7632177601431540445, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7632177601431540445, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
---- !u!1 &1463937173174753283 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4394024244983283182, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-  m_PrefabInstance: {fileID: 2930232433233929709}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &4701960080868357936 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7632177601431540445, guid: 7a078b2f18c1af24da95d48f0f4cded4, type: 3}
-  m_PrefabInstance: {fileID: 2930232433233929709}
-  m_PrefabAsset: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::EndBiome
+  _biomeColor: {r: 1, g: 0, b: 0, a: 1}
+  conditions:
+  - {fileID: 5895232242308888853, guid: 43c897d0ce785434bb7c5627d751e3b6, type: 3}
+  room: {fileID: 0}
+  startConditionalTasks: []
+  conditionalTasks: []

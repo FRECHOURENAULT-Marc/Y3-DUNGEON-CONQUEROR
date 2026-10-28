@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: StartBiomeStyle
   m_EditorClassIdentifier: Assembly-CSharp::BiomeStyleSO
   biomeName: Start
-  value: -1
+  value: 1000
   biomeBehaviorPrefab: {fileID: 8761042825383401470, guid: 0908b7463386d8049a0156cfeca15c51, type: 3}

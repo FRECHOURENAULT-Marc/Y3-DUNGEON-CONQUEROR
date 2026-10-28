@@ -86,7 +86,7 @@ public static class Utils {
     /// Add 4 (or 8 if doubleSided) vertices (quad) to vertices list with associate triangles
     /// World points are converted to "parent" local space
     /// </summary>
-    public static void AddQuad(List<Vector3> verts, List<int> tris, Transform parent,
+    public static void AddQuad(List<Vector3> verts, List<int> tris, List<Vector2> uvs, Transform parent,
         Vector3 a, Vector3 b, Vector3 c, Vector3 d, bool doubleSided)
     {
         int start = verts.Count;
@@ -94,6 +94,12 @@ public static class Utils {
         verts.Add(parent.InverseTransformPoint(b));
         verts.Add(parent.InverseTransformPoint(c));
         verts.Add(parent.InverseTransformPoint(d));
+        
+        // UV : bottom-left, bottom-right, top-right, top-left
+        uvs.Add(new Vector2(0f, 0f));
+        uvs.Add(new Vector2(1f, 0f));
+        uvs.Add(new Vector2(1f, 1f));
+        uvs.Add(new Vector2(0f, 1f));
 
         // Front face
         tris.AddRange(new[] { start, start + 1, start + 2, start, start + 2, start + 3 });
@@ -107,7 +113,18 @@ public static class Utils {
         verts.Add(verts[start + 1]);
         verts.Add(verts[start + 2]);
         verts.Add(verts[start + 3]);
-        tris.AddRange(new[] { back, back + 2, back + 1, back, back + 3, back + 2 });
+        
+        // same as front
+        uvs.Add(new Vector2(0f, 0f));
+        uvs.Add(new Vector2(1f, 0f));
+        uvs.Add(new Vector2(1f, 1f));
+        uvs.Add(new Vector2(0f, 1f));
+        
+        tris.AddRange(new[]
+        {
+            back, back + 2, back + 1, 
+            back, back + 3, back + 2
+        });
     }
 
     /// <summary>

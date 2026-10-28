@@ -17,5 +17,9 @@ MonoBehaviour:
   biomeList:
   - style: {fileID: 11400000, guid: fe25a254c308b754fafda4543665ca0d, type: 2}
     prob: 0.5
+    maxOccurrences: 999
+    occurrences: 3
   - style: {fileID: 11400000, guid: 1de81c5b37be443498140c9bf25ac2dd, type: 2}
     prob: 0.5
+    maxOccurrences: 999
+    occurrences: 7

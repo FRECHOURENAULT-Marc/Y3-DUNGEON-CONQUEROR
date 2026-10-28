@@ -125,6 +125,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4923d1debf1aef0429e4d52dc921ae73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaterialTillingByScale
-  factors: {x: 0.1, y: 0.1}
+  factors: {x: 0.25, y: 0.25}
   ignoreX: 0
   ignoreY: 0
+  useYAsX: 0
+  useZAsX: 0
+  useXAsY: 0
+  useZAsY: 0

@@ -51,7 +51,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1616695062270897219}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -125,9 +125,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4923d1debf1aef0429e4d52dc921ae73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaterialTilingByScale
-  factors: {x: 1, y: 1}
+  factors: {x: 0.1, y: 0.1}
   ignoreX: 0
   ignoreY: 0
+  useYAsX: 0
+  useZAsX: 0
+  useXAsY: 0
   useZAsY: 1
 --- !u!1 &4430450607445921007
 GameObject:
@@ -180,7 +183,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4430450607445921007}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -254,9 +257,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4923d1debf1aef0429e4d52dc921ae73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaterialTilingByScale
-  factors: {x: 1, y: 1}
+  factors: {x: 0.25, y: 0.25}
   ignoreX: 0
   ignoreY: 0
+  useYAsX: 0
+  useZAsX: 1
+  useXAsY: 0
   useZAsY: 0
 --- !u!1 &6332543688718896247
 GameObject:
@@ -379,7 +385,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7238904910620921799}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -453,9 +459,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4923d1debf1aef0429e4d52dc921ae73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaterialTilingByScale
-  factors: {x: 1, y: 1}
+  factors: {x: 0.25, y: 0.25}
   ignoreX: 0
   ignoreY: 0
+  useYAsX: 0
+  useZAsX: 1
+  useXAsY: 0
   useZAsY: 0
 --- !u!1 &7914703888128761436
 GameObject:
@@ -508,7 +517,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7914703888128761436}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -582,7 +591,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4923d1debf1aef0429e4d52dc921ae73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaterialTilingByScale
-  factors: {x: 1, y: 1}
+  factors: {x: 0.1, y: 0.1}
   ignoreX: 0
   ignoreY: 0
+  useYAsX: 0
+  useZAsX: 0
+  useXAsY: 0
   useZAsY: 1
