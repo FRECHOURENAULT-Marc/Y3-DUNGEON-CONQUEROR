@@ -8,6 +8,8 @@ public class BiomeData
 {
     public BiomeStyleSO style;
     public float prob;
+    public int maxOccurrences;
+    [HideInInspector] public int occurrences;
 }
 
 [CreateAssetMenu(fileName = "MapBiomesSO", menuName = "SO/Gen/MapBiomesSO")]
