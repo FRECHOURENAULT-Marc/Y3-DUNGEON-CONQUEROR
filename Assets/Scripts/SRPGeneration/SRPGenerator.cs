@@ -560,7 +560,11 @@ public class SRPGenerator : MonoBehaviour
             
             float sum = 0f;
             foreach (var biomeData in mapStyle.biomes.biomeList)
-                sum += biomeData.prob;          
+            {
+                if(biomeData.occurrences >= biomeData.maxOccurrences)
+                    continue;
+                sum += biomeData.prob;
+            }
             float rdmBiome = Random.Range(0f, sum);
             
             // Select Biome
