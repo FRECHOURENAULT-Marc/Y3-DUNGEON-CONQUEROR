@@ -19,6 +19,7 @@ public class PlayerReferences : MonoBehaviour
     [SerializeField] PlayerMovement _playerMovement;
     [SerializeField] PlayerXPSystem _playerXPSystem;
     [SerializeField] MouseController _mouseController;
+    [SerializeField] PlayerAnimation _playerAnimation;
 
 
     // Getter GameObject
@@ -36,5 +37,6 @@ public class PlayerReferences : MonoBehaviour
     public PlayerAttackSystem PlayerAttackSystem { get => _attackSystem; }
     public PlayerMovement PlayerMovement { get => _playerMovement; }
     public PlayerXPSystem PlayerXPSystem { get => _playerXPSystem; }
+    public PlayerAnimation PlayerAnimation { get => _playerAnimation; }
     public MouseController MouseController { get => _mouseController; }
 }

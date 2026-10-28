@@ -42,7 +42,6 @@ public class PlayerAnimation : MonoBehaviour
         _PReference.PlayerAnimator.SetFloat("velocity", _PReference.PlayerMovement.Velocity);
 
         _PReference.PlayerAnimator.SetBool("AsWeapon", _asWeapon);
-        _PReference.WeaponObject.SetActive(_asWeapon);
     }
 
 

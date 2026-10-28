@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47e9a218884716b408831482d46d2387, type: 3}
+  m_Name: Sword
+  m_EditorClassIdentifier: Assembly-CSharp::SOWeapon
+  weaponName: Sword
+  weaponDamage: 10
+  weaponAtttackDistance: 5
+  weaponSweepAngle: 90
+  weaponAttackSpeed: 1
+  positionOffset: {x: 0, y: 0, z: 0}
+  rotationOffset: {x: 0, y: 0, z: 0}
+  scale: {x: 1, y: 1, z: 1}
+  weaponPrefabe: {fileID: 1486732371734550431, guid: 89643f3191894f9429feaeae843f7e1b, type: 3}

@@ -18,9 +18,9 @@ public class EnnemiAnimation : MonoBehaviour
         _EReferences.EnnemiBrain.OnAttack += HandleAttack;
     }
 
-    void Oestroy()
+    void OnDestroy()
     {
-        _EReferences.EnnemiBrain.OnAttack += HandleAttack;
+        _EReferences.EnnemiBrain.OnAttack -= HandleAttack;
     }
 
     void HandleAttack() => _EReferences.EnnemiAnimator.SetTrigger("Attack");

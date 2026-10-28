@@ -54,6 +54,12 @@ public class PlayerCapacitySystem : MonoBehaviour
         if (name == "DoubleJump") _PReferences.PlayerMovement.AsUnlockDoubleJump = true;
 
         else if (name == "Dash") _PReferences.PlayerMovement.AsUnlockDash = true;
+
+        else if (name == "Attack Distance Multiplier") _PReferences.PlayerAttackSystem.AsUnlockDistanceMultiplier = true;
+
+        else if (name == "Speed Multiplier") _PReferences.PlayerMovement.AsUnlockSpeedMultiplier = true;
+
+        else if (name == "Damage Multiplier") _PReferences.PlayerAttackSystem.AsUnlockDamageMultiplier = true;
     }
 
 

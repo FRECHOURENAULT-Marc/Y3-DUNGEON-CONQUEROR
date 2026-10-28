@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47e9a218884716b408831482d46d2387, type: 3}
+  m_Name: Dague
+  m_EditorClassIdentifier: Assembly-CSharp::SOWeapon
+  weaponName: Dague
+  weaponDamage: 20
+  weaponAtttackDistance: 2.5
+  weaponSweepAngle: 10
+  weaponAttackSpeed: 3
+  positionOffset: {x: 0, y: 0.1, z: 0.02}
+  rotationOffset: {x: -20, y: 150, z: 180}
+  scale: {x: 0.3, y: 0.3, z: 0.3}
+  weaponPrefabe: {fileID: 4814140183114437194, guid: 3f82a4ae463064541a94d1660f77b1f5, type: 3}
