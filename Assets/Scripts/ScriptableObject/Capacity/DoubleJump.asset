@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3245aa6a4b5699e448c182643f91abab, type: 3}
   m_Name: DoubleJump
   m_EditorClassIdentifier: Assembly-CSharp::SOCapacity
-  CapacityName: DoubleJump
+  CapacityName: Double Jump
   description: you can jump two time instead of one
+  icon: {fileID: 21300000, guid: 965ddaa84c6ee324e8bc514e3858e366, type: 3}
+  iconDisable: {fileID: 21300000, guid: 714a062c3b8d1ae48b9de021bd308099, type: 3}

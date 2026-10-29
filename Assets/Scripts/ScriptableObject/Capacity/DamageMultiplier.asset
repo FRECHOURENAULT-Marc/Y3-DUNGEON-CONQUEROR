@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SOCapacity
   CapacityName: Damage Multiplier
   description: you gain x1.5 damage
+  icon: {fileID: 21300000, guid: 80576845a52d71e44aac776545e2ea48, type: 3}
+  iconDisable: {fileID: 0}

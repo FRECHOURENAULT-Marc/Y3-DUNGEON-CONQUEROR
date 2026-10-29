@@ -1,11 +1,17 @@
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerCapacitySystem : MonoBehaviour
 {
     [SerializeField] PlayerReferences _PReferences;
 
+    [Header("UI References")]
+    [SerializeField] GameObject _UIRoot;
+    [SerializeField] TextMeshProUGUI _notifText;
+ 
     [Header("Setting")]
     [SerializeField] List<SOCapacity> _capacityList;
 
@@ -16,6 +22,7 @@ public class PlayerCapacitySystem : MonoBehaviour
 
     void Start()
     {
+        _UIRoot.SetActive(false);
         _currentStep = 0;
         _capacityActive = new List<SOCapacity>();
     }
@@ -42,6 +49,19 @@ public class PlayerCapacitySystem : MonoBehaviour
         _capacityActive.Add(cap1);
         _capacityList.Remove(cap1);
 
+        ShowNotif(cap1.CapacityName);
+        Image img = _PReferences.IconController.AddIcon(cap1.icon);
+        if (cap1.CapacityName == "Dash")
+        {
+            _PReferences.PlayerMovement._dashImage = img;
+            _PReferences.PlayerMovement._dashSO = cap1;
+        } else if (cap1.CapacityName == "Double Jump")
+        {
+            _PReferences.PlayerMovement._douleJumpImage = img;
+            _PReferences.PlayerMovement._douleJumpSO = cap1;
+        }
+        
+
         ActivateCapacity(cap1);
     }
 
@@ -51,7 +71,7 @@ public class PlayerCapacitySystem : MonoBehaviour
 
         Debug.Log($"You have unlock {cap.CapacityName} ({cap.description})");
 
-        if (name == "DoubleJump") _PReferences.PlayerMovement.AsUnlockDoubleJump = true;
+        if (name == "Double Jump") _PReferences.PlayerMovement.AsUnlockDoubleJump = true;
 
         else if (name == "Dash") _PReferences.PlayerMovement.AsUnlockDash = true;
 
@@ -61,6 +81,17 @@ public class PlayerCapacitySystem : MonoBehaviour
 
         else if (name == "Damage Multiplier") _PReferences.PlayerAttackSystem.AsUnlockDamageMultiplier = true;
     }
+
+
+    async void ShowNotif(string txt)
+    {
+        _notifText.text = txt;
+        _UIRoot.SetActive(true);
+        await Awaitable.WaitForSecondsAsync(5f);
+        _UIRoot.SetActive(false);
+    }
+
+
 
 
 }

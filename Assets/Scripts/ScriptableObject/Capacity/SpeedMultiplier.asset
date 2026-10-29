@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SOCapacity
   CapacityName: Speed Multiplier
   description: you gain x1.5 speed movement
+  icon: {fileID: 21300000, guid: fb443552277cbfe4b93ef2129b5e43d7, type: 3}
+  iconDisable: {fileID: 0}

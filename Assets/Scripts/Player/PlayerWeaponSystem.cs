@@ -16,6 +16,7 @@ public class PlayerWeaponSystem : MonoBehaviour
     void Start()
     {
         _PReferences.PlayerInput.DropWeapon += HandleDropWeapon;
+        _PReferences.PlayerInput.OnInteract += HandleInteract;
 
         DisableWeapon();
     }
@@ -23,24 +24,20 @@ public class PlayerWeaponSystem : MonoBehaviour
     void OnDestroy()
     {
         _PReferences.PlayerInput.DropWeapon -= HandleDropWeapon;
+        _PReferences.PlayerInput.OnInteract -= HandleInteract;
     }
 
 
     void Update()
     {
         _PReferences.WeaponObject.SetActive(_asWeapon);
-
-        if ( _asWeapon )
-        {
-            
-        }
     }
 
 
     [ContextMenu("Equipe weapon")]
     void sword()
     {
-        EnableWeapon(_listOfWeapon[2]);
+        EnableWeapon(_listOfWeapon[0]);
     }
 
     [ContextMenu("UnEquipe weapon")]
@@ -64,6 +61,7 @@ public class PlayerWeaponSystem : MonoBehaviour
         _PReferences.PlayerAttackSystem.WeaponAttackDistance = _activeWeapon.weaponAtttackDistance;
         _PReferences.PlayerAttackSystem.WeaponDamage = _activeWeapon.weaponDamage;
         _PReferences.PlayerAttackSystem.WeaponSweepAngle = _activeWeapon.weaponSweepAngle;
+        _PReferences.PlayerAttackSystem.WeaponSpeed = _activeWeapon.weaponAttackSpeed;
 
         // initiate weapon
         GameObject obj = Instantiate(_activeWeapon.weaponPrefabe);
@@ -107,15 +105,56 @@ public class PlayerWeaponSystem : MonoBehaviour
 
     void HandleDropWeapon()
     {
-        DropWeaponOnFloor(_activeWeapon);
+        if ( _activeWeapon != null )
+            DropWeaponOnFloor(_activeWeapon);
     }
 
     void DropWeaponOnFloor(SOWeapon weapon)
     {
         // Logic of drop item
+        GameObject prefab = _PReferences.ObjectFloorPrefab;
+
+        GameObject obj = Instantiate(prefab);
+
+        obj.transform.position = _PReferences.PlayerRoot.transform.position;
+
+        ObjectBrain objBrain = obj.GetComponent<ObjectBrain>();
+
+        if ( objBrain == null )
+            return;
+        
+        objBrain.Weapon = weapon;
+        objBrain.GenerateWeapon();
 
         DestroyImmediate(_activeWeaponObject);
         _asWeapon = false;
         DisableWeapon();
+    }
+
+    void HandleInteract()
+    {
+        float dist = 10;
+
+        RaycastHit hit;
+
+        if ( Physics.Raycast(
+            _PReferences.PlayerCamera.transform.position,
+            _PReferences.PlayerCamera.transform.forward,
+            out hit,
+            dist
+        ))
+        {
+            Collider cur = hit.collider;
+
+            WeaponGetter curOBJ = cur.GetComponent<WeaponGetter>();
+
+            if ( curOBJ != null )
+            {
+                ObjectBrain curBrain = curOBJ.GetBrain();
+
+                EnableWeapon(curBrain.Weapon);
+                curBrain.IsWeaponGet = true;
+            }
+        }
     }
 }
