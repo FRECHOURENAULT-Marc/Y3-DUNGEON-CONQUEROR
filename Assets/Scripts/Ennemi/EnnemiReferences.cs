@@ -20,7 +20,7 @@ public class EnnemiReferences : MonoBehaviour
 
 
     // Getter Gameobject
-    public GameObject Player { get => _playerOBJ; }
+    public GameObject Player { get => _playerOBJ; set => _playerOBJ = value; }
     public GameObject EnnemiRoot { get => _ennemiRoot; }
     
     // Getter Component
