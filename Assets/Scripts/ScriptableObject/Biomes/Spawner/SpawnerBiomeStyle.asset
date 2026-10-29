@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ceeeebef74f839a40acb89626d86515c, type: 3}
   m_Name: SpawnerBiomeStyle
   m_EditorClassIdentifier: Assembly-CSharp::BiomeStyleSO
-  biomeName: 
-  value: 0
+  biomeName: Spawner
+  value: 10
   biomeBehaviorPrefab: {fileID: 692174452112886162, guid: 42b3e1c2471fabf49a1aa7cdd37d4a04, type: 3}
