@@ -38,8 +38,8 @@ public class IBiomeTask : ITask
     public override bool Do() => base.Do();
 }
 
-[CreateAssetMenu(fileName = "ConditionalTaskSO", menuName = "SO/ConditionalTask")]
-public class ConditionalTaskSO : ScriptableObject
+//[CreateAssetMenu(fileName = "ConditionalTaskSO", menuName = "SO/ConditionalTask")]
+public class ConditionalTask : MonoBehaviour
 {
     public List<ICondition> _conditions;
     public List<ITask> _tasks;

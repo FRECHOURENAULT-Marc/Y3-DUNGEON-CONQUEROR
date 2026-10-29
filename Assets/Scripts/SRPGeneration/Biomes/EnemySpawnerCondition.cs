@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EnemySpawnerCondition : IBiomeCondition
 {
-    [SerializeField] EnemySpawner spawner;
+    [SerializeField] EnemySpawnerTask spawnerTask;
     [ShowNonSerializedField] int _lastIndex;
 
     public override void Reset()
@@ -27,17 +27,17 @@ public class EnemySpawnerCondition : IBiomeCondition
             Debug.Log("Player not in room");  
         if (isPlayerInRoom == false)
             return false;
-        if(_lastIndex > spawner.LastWaveIndex)
-            Debug.Log("index was too height : " + _lastIndex + "/" + spawner.LastWaveIndex); 
-        if (_lastIndex > spawner.LastWaveIndex)
+        if(_lastIndex > spawnerTask.LastWaveIndex)
+            Debug.Log("index was too height : " + _lastIndex + "/" + spawnerTask.LastWaveIndex); 
+        if (_lastIndex > spawnerTask.LastWaveIndex)
             return false;
-        if(spawner.IsWaveCompleted == false)
+        if(spawnerTask.IsWaveCompleted == false)
             Debug.Log("Previous wave in not completed");
-        if (spawner.IsWaveCompleted == false)
+        if (spawnerTask.IsWaveCompleted == false)
             return false;
 
         Debug.Log("Incrementing wave index");
-        spawner.waveIndexToPlay = _lastIndex;
+        spawnerTask.waveIndexToPlay = _lastIndex;
         _lastIndex++;
         return true;
     }

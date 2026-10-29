@@ -12,7 +12,7 @@ public class EnemyWaveData
     public float startTime;
 }
 
-public class EnemySpawner : IBiomeTask
+public class EnemySpawnerTask : IBiomeTask
 {
     [SerializeField] List<EnemyWaveData> waves;
     [HideInInspector] public int waveIndexToPlay;
@@ -92,6 +92,8 @@ public class EnemySpawner : IBiomeTask
             GameObject enemy = Instantiate(wave.enemyPrefab, room.root.transform);
             enemy.transform.localPosition = localPos;
             enemy.GetComponentInChildren<HealthController>().PropsDeath += () => _enemiesKilled++;
+            EnnemiReferences ERef = enemy.GetComponentInChildren<EnnemiReferences>();
+            //ERef.Player = DependenciesInjector.PDeps.Player; //todo
         }
 
         while (_enemiesKilled < wave.count)

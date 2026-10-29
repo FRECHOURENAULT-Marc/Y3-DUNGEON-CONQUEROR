@@ -7,12 +7,12 @@ using Deps = DependenciesInjector;
 
 public class ConditionalBiome : BiomeBehavior
 {
-    [SerializeField] List<ConditionalTaskSO> startConditionalTasks;
-    [SerializeField] List<ConditionalTaskSO> conditionalTasks;
+    [SerializeField] List<ConditionalTask> startConditionalTasks;
+    [SerializeField] List<ConditionalTask> conditionalTasks;
     
     void Reset()
     {
-        conditionalTasks ??= new List<ConditionalTaskSO>();
+        conditionalTasks ??= new List<ConditionalTask>();
     }
 
     void Start()
@@ -20,20 +20,20 @@ public class ConditionalBiome : BiomeBehavior
         InitializeConditionalTasks(startConditionalTasks);
         InitializeConditionalTasks(conditionalTasks);
         
-        foreach (ConditionalTaskSO conditionalTask in startConditionalTasks)
+        foreach (ConditionalTask conditionalTask in startConditionalTasks)
             conditionalTask.Try();
     }
 
     void FixedUpdate()
     {
-        foreach (ConditionalTaskSO conditionalTask in conditionalTasks)
+        foreach (ConditionalTask conditionalTask in conditionalTasks)
             conditionalTask.Try();
     }
     
     
-    void InitializeConditionalTasks(List<ConditionalTaskSO> condTasks)
+    void InitializeConditionalTasks(List<ConditionalTask> condTasks)
     {
-        foreach (ConditionalTaskSO conditionalTask in condTasks)
+        foreach (ConditionalTask conditionalTask in condTasks)
         {
             InitializeTasks(conditionalTask._tasks);
             InitializeConditions(conditionalTask._conditions);
