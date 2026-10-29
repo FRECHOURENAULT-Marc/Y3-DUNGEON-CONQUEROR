@@ -151,16 +151,17 @@ public class PlayerAttackSystem : MonoBehaviour
 
             float sweepAngle = _asWeapon ? _weaponSweepAngle : _sweepAngle;
             float attackDistance = _asWeapon ? _weaponAttackDistance : _raycastDistance;
+            float speed = _asWeapon ? _weaponSpeed : 1;
 
             // Wait for the start of the animation
-            await Awaitable.WaitForSecondsAsync(0.1f / _weaponSpeed);
+            await Awaitable.WaitForSecondsAsync(0.1f / speed);
 
             // Start the recovery timer
             AttackRecovery();
 
 
             // Wait for the moment where the animation attack
-            await Awaitable.WaitForSecondsAsync(0.5f / _weaponSpeed);
+            await Awaitable.WaitForSecondsAsync(0.5f / speed);
 
             int nbRay = (int) Math.Floor( Math.Floor( sweepAngle  * 2 ) / 2 );
 
@@ -202,7 +203,6 @@ public class PlayerAttackSystem : MonoBehaviour
                     }
                 }
             }
-
         }
     }
 
@@ -233,7 +233,8 @@ public class PlayerAttackSystem : MonoBehaviour
     async void AttackRecovery()
     {
         _canAttack = false;
-        await Awaitable.WaitForSecondsAsync(1 / _weaponSpeed);
+        float speed = _asWeapon ? _weaponSpeed : 1;
+        await Awaitable.WaitForSecondsAsync(1 / speed);
         _canAttack = true;
     }
 

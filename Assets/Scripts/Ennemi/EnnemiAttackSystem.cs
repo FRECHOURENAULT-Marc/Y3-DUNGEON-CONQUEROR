@@ -8,6 +8,7 @@ public class EnnemiAttackSystem : MonoBehaviour
     [Header("Settings")]
     [SerializeField] float _attackDistance;
     [SerializeField] float _damage;
+    [SerializeField] float _animationDuration;
 
     [Header("Debug")]
     [SerializeField] List<GameObject> _targetList;
@@ -47,7 +48,7 @@ public class EnnemiAttackSystem : MonoBehaviour
 
     async void HandleAttack()
     {
-        await Awaitable.WaitForSecondsAsync(0.5f);
+        await Awaitable.WaitForSecondsAsync(_animationDuration / 2);
 
         foreach (GameObject ctx in _targetList)
         {

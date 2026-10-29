@@ -88,7 +88,7 @@ public class EnnemiBrain : MonoBehaviour
     async void AttackRecovery()
     {
         _canAttack = false;
-        await Awaitable.WaitForSecondsAsync(2);
+        await Awaitable.WaitForSecondsAsync(4);
         _canAttack = true;
     }
 

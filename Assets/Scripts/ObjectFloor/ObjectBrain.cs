@@ -63,8 +63,4 @@ public class ObjectBrain : MonoBehaviour
         _weapon = null;
         DestroyImmediate(_curModel);
     }
-
-    
-
-
 }
