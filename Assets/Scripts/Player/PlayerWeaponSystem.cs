@@ -34,6 +34,9 @@ public class PlayerWeaponSystem : MonoBehaviour
     }
 
 
+    public void GiveStarterWeapon() => sword();
+    public void GiveWeapon(SOWeapon weapon) => EnableWeapon(weapon);
+
     [ContextMenu("Equipe weapon")]
     void sword()
     {

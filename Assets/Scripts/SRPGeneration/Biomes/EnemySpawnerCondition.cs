@@ -24,19 +24,12 @@ public class EnemySpawnerCondition : IBiomeCondition
         bool isPlayerInRoom = Utils.CollidingWith(pCollider, roomCollider);
         
         if(isPlayerInRoom == false)
-            Debug.Log("Player not in room");  
-        if (isPlayerInRoom == false)
             return false;
-        if(_lastIndex > spawnerTask.LastWaveIndex)
-            Debug.Log("index was too height : " + _lastIndex + "/" + spawnerTask.LastWaveIndex); 
         if (_lastIndex > spawnerTask.LastWaveIndex)
             return false;
-        if(spawnerTask.IsWaveCompleted == false)
-            Debug.Log("Previous wave in not completed");
         if (spawnerTask.IsWaveCompleted == false)
             return false;
-
-        Debug.Log("Incrementing wave index");
+        
         spawnerTask.waveIndexToPlay = _lastIndex;
         _lastIndex++;
         return true;

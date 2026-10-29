@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class EndTask : IBiomeTask
 {
@@ -9,7 +10,10 @@ public class EndTask : IBiomeTask
             return false;
         
         Debug.Log("End reached");
-        EditorApplication.isPaused = true;
+        //EditorApplication.isPaused = true;
+        Leaderboard.AsWin = true;
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
+        SceneManager.LoadScene("EndMenu");
         return true;
     }
 }

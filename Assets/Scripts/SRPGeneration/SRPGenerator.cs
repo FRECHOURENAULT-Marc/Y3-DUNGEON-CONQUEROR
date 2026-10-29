@@ -160,9 +160,6 @@ public class SRPGenerator : MonoBehaviour
             
             Debug.Log("Room at: " + r.global.transform.position + " has no connection.", r.global);
         }
-        
-        // Place Player at start
-        PlacePlayerAtStart();
     }
     
     
@@ -583,12 +580,6 @@ public class SRPGenerator : MonoBehaviour
                 break;
             }
         }
-    }
-
-    [Button]
-    void PlacePlayerAtStart()
-    {
-        DependenciesInjector.PDeps.Player.transform.position = startRoom.root.transform.position;
     }
     
     [Button]

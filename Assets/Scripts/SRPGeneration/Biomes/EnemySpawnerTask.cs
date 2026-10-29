@@ -92,8 +92,8 @@ public class EnemySpawnerTask : IBiomeTask
             GameObject enemy = Instantiate(wave.enemyPrefab, room.root.transform);
             enemy.transform.localPosition = localPos;
             enemy.GetComponentInChildren<HealthController>().PropsDeath += () => _enemiesKilled++;
-            EnnemiReferences ERef = enemy.GetComponentInChildren<EnnemiReferences>();
-            //ERef.Player = DependenciesInjector.PDeps.Player; //todo
+            enemy.GetComponentInChildren<EnnemiReferences>().Player = DependenciesInjector.PDeps.Player;
+            enemy.GetComponentInChildren<EnnemiBrain>().IsWakeUp = true;
         }
 
         while (_enemiesKilled < wave.count)

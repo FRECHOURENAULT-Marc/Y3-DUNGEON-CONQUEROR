@@ -50,8 +50,7 @@ public class ConditionalTask : MonoBehaviour
     {
         if (TestAll() == false)
             return false;
-
-        Debug.Log("Doing Conditional tasks");
+        
         DoAll();
         return true;
     }

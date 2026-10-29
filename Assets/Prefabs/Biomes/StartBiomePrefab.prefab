@@ -9,7 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 820582046107927424}
-  - component: {fileID: 2685520145599895721}
+  - component: {fileID: 4576947306610487589}
+  - component: {fileID: -1265312620425055970}
+  - component: {fileID: 7608287515720888123}
   m_Layer: 0
   m_Name: StartBiomePrefab
   m_TagString: Untagged
@@ -32,7 +34,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2685520145599895721
+--- !u!114 &4576947306610487589
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,12 +43,41 @@ MonoBehaviour:
   m_GameObject: {fileID: 8761042825383401470}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea5a25f8b215a8640aa84881019054cf, type: 3}
+  m_Script: {fileID: 11500000, guid: c595edb47361b7a46ad6e3efaac6089f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BiomeDefault
-  _biomeColor: {r: 1, g: 1, b: 1, a: 1}
-  completionConditions: []
-  onFinishedTasks: []
+  m_EditorClassIdentifier: Assembly-CSharp::BiomeBehavior
+  _biomeColor: {r: 0, g: 0.8913369, b: 1, a: 1}
+  completionConditions:
+  - {fileID: -1265312620425055970}
+  onFinishedTasks:
+  - {fileID: 7608287515720888123}
   room: {fileID: 0}
-  _inputForFinishing: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  _maxDistanceActivation: 50
+--- !u!114 &-1265312620425055970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8761042825383401470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c621cb13f7cf20418904778531df1ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  room: {fileID: 0}
+--- !u!114 &7608287515720888123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8761042825383401470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f61e2834e0f0fd947aa8cd4935af1bc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  _doMultipleTimes: 0
+  room: {fileID: 0}
+  weaponPrefab: {fileID: 1157395001218508359, guid: dabfbe6e5edeb3d479a7ca1acaed6ba8, type: 3}
+  starterWeaponSO: {fileID: 11400000, guid: b65ce5c111c020741a38c010666cccf7, type: 2}

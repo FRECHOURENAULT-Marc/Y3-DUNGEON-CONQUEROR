@@ -15,8 +15,10 @@ public class ConditionalBiome : BiomeBehavior
         conditionalTasks ??= new List<ConditionalTask>();
     }
 
-    void Start()
+    protected override void Start()
     {
+        base.Start();
+        
         InitializeConditionalTasks(startConditionalTasks);
         InitializeConditionalTasks(conditionalTasks);
         
@@ -24,8 +26,13 @@ public class ConditionalBiome : BiomeBehavior
             conditionalTask.Try();
     }
 
-    void FixedUpdate()
+    protected override void FixedUpdate()
     {
+        if (room.IsFinished)
+            return;
+        
+        base.FixedUpdate();
+        
         foreach (ConditionalTask conditionalTask in conditionalTasks)
             conditionalTask.Try();
     }

@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1428792543260387899}
   - component: {fileID: 1898808239697164039}
+  - component: {fileID: 3242630753602221359}
+  - component: {fileID: -7605286801124248517}
   m_Layer: 0
   m_Name: SpawnerBiomePrefab
   m_TagString: Untagged
@@ -46,12 +48,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConditionalBiome
   _biomeColor: {r: 1, g: 0.844984, b: 0, a: 1}
-  completionConditions: []
-  onFinishedTasks: []
+  completionConditions:
+  - {fileID: 3242630753602221359}
+  onFinishedTasks:
+  - {fileID: -7605286801124248517}
   room: {fileID: 0}
   startConditionalTasks: []
   conditionalTasks:
   - {fileID: 1412367607479301392}
+--- !u!114 &3242630753602221359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692174452112886162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 143526dab69b338439b1245cfffa2ebb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  room: {fileID: 0}
+  spawner: {fileID: 1606884436303123207}
+--- !u!114 &-7605286801124248517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692174452112886162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac297ce8acebe0e43bbd1136952c7613, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpawnerEndTask
+  _doMultipleTimes: 0
+  room: {fileID: 0}
 --- !u!1 &853402824390610236
 GameObject:
   m_ObjectHideFlags: 0
@@ -130,5 +162,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   _doMultipleTimes: 0
   room: {fileID: 0}
-  waves: []
+  waves:
+  - enemyPrefab: {fileID: 3498049009617409390, guid: d435449f69afe7b499045ffcedd79d59, type: 3}
+    count: 5
+    startTime: 1
   waveIndexToPlay: 0

@@ -1872,8 +1872,8 @@ MonoBehaviour:
   _maxDisplayName: 10
   _playerTime: {fileID: 1337473270}
   _playerName: {fileID: 390302835}
-  _winCanva: {fileID: 0}
-  _looseCanva: {fileID: 0}
+  _winCanva: {fileID: 1672815157}
+  _looseCanva: {fileID: 92161543}
 --- !u!4 &656621039
 Transform:
   m_ObjectHideFlags: 0

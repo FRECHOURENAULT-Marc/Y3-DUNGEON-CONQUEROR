@@ -17,16 +17,17 @@ public class BiomeBehavior : MonoBehaviour
         Gizmos.DrawWireCube(room.root.transform.position, room.global.transform.lossyScale);
     }
 
-    void Start()
+    protected virtual void Start()
     {
         InitializeTasks(onFinishedTasks);
         InitializeConditions(completionConditions);
     }
     
-    void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
-        if(room.IsFinished)
+        if (room.IsFinished)
             return;
+            
 
         if (completionConditions.Count == 0)
             return;

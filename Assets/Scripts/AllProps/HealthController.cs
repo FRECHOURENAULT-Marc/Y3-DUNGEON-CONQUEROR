@@ -36,6 +36,14 @@ public class HealthController : MonoBehaviour
     }
 
 
+    public void Heal(float hp)
+    {
+        _currentHealth += hp;
+        _currentHealth = Math.Clamp(_currentHealth, 0, _maxHealth);
+        
+        _healthBarSlider.value = _currentHealth;
+    }
+    
     public void GetAttacked(float dmg)
     {
         // Debug.Log($"Getting attacked (-{dmg} health)");

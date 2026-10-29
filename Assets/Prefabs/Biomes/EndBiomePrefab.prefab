@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5314133042213824537}
   - component: {fileID: 2865166420770735823}
+  - component: {fileID: 8206966094515485467}
+  - component: {fileID: 6697738619327294124}
   m_Layer: 0
   m_Name: EndBiomePrefab
   m_TagString: Untagged
@@ -46,7 +48,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BiomeBehavior
   _biomeColor: {r: 1, g: 1, b: 1, a: 1}
   completionConditions:
-  - {fileID: 5895232242308888853, guid: 43c897d0ce785434bb7c5627d751e3b6, type: 3}
+  - {fileID: 8206966094515485467}
   onFinishedTasks:
-  - {fileID: 4947217319737664420, guid: cf6ca0fdaf9abae4c9e3987bc00e93f9, type: 3}
+  - {fileID: 6697738619327294124}
+  room: {fileID: 0}
+--- !u!114 &8206966094515485467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9069837084483622327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfaf094cf95c3564780ffc72b275d0af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EndCondition
+  room: {fileID: 0}
+  distance: 10
+--- !u!114 &6697738619327294124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9069837084483622327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ab0329358f0ea544b1a6b84619944e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EndTask
+  _doMultipleTimes: 0
   room: {fileID: 0}
