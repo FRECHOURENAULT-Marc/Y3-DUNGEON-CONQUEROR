@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
@@ -65,7 +66,11 @@ public class Leaderboard : MonoBehaviour
 
     void Start()
     {
+        TimerGame.StopTimer();
+
+
         InitUI();
+        InitPlayerTime();
         LoadData();
         UpdateLeaderboardDisplay();
 
@@ -74,12 +79,25 @@ public class Leaderboard : MonoBehaviour
 
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+
     }
 
     void InitUI()
     {
         foreach (TextMeshProUGUI name in _names) name.text = "";
         foreach (TextMeshProUGUI time in _times) time.text = "";
+    }
+
+
+    void InitPlayerTime()
+    {
+        TimeSpan dur = TimerGame.EndTime - TimerGame.StartTime;
+        _playerTime.text = FormatTime(dur);
+    }
+
+    private string FormatTime(TimeSpan time)
+    {
+        return $"{(int)time.TotalMinutes:00}:{time.Seconds:00}";
     }
 
 
@@ -121,6 +139,14 @@ public class Leaderboard : MonoBehaviour
     public void BacktoMenu()
     {
         SceneManager.LoadScene("MainMenu");
+    }
+
+
+    [ContextMenu("see path")]
+    void SeePath()
+    {
+        Debug.Log(Application.persistentDataPath + "/leaderboard.sav");
+        Debug.Log(Application.dataPath + "/Saves" + "/leaderboard.sav");
     }
 
 

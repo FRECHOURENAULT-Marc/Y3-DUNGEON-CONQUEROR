@@ -62,7 +62,17 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
+        TimerGame.StartTimer();
         SceneManager.LoadScene("RoomGeneration");
+    }
+
+    public void QuitApp()
+    {
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #endif
+
+        Application.Quit();
     }
 
 
