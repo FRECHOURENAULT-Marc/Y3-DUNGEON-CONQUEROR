@@ -66,6 +66,15 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene("RoomGeneration");
     }
 
+    public void QuitApp()
+    {
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #endif
+
+        Application.Quit();
+    }
+
 
 
     void InitUI()

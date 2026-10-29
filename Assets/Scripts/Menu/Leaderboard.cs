@@ -142,6 +142,14 @@ public class Leaderboard : MonoBehaviour
     }
 
 
+    [ContextMenu("see path")]
+    void SeePath()
+    {
+        Debug.Log(Application.persistentDataPath + "/leaderboard.sav");
+        Debug.Log(Application.dataPath + "/Saves" + "/leaderboard.sav");
+    }
+
+
     void UpdateLeaderboardDisplay()
     {
         int i = 0;
