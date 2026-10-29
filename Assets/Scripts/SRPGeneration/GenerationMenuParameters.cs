@@ -17,9 +17,9 @@ public class GenerationMenuParameters : ScriptableObject
     public bool rdmSeed = false;
     public WEAPON_SELECTED weapon = WEAPON_SELECTED.Sword;
     
-    public void SetEffort(int effort) => generationEffort = Math.Clamp(effort, 0, int.MaxValue);
+    public void SetEffort(int effort) => generationEffort = Math.Clamp(effort, 100, int.MaxValue);
     public void SetEffort(string effort) => SetEffort(int.Parse(effort));
-    public void SetTarget(int target) => maxRooms = Math.Clamp(target, 0, int.MaxValue);
+    public void SetTarget(int target) => maxRooms = Math.Clamp(target, 3, int.MaxValue);
     public void SetTarget(string target) => SetTarget(int.Parse(target));
     public void SetSeed(int s) => seed = s;
     public void SetSeed(string s) => SetSeed(int.Parse(s));
