@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BiomeStyleSO
   biomeName: End
   value: 1001
-  biomeBehaviorPrefab: {fileID: 8761042825383401470, guid: 80ab6a5c57168a842902a9c8e18429e1, type: 3}
+  biomeBehaviorPrefab: {fileID: 9069837084483622327, guid: 80ab6a5c57168a842902a9c8e18429e1, type: 3}

@@ -7,25 +7,28 @@ public class ICondition : MonoBehaviour
 }
 public class IBiomeCondition : ICondition
 {
-    public SRPRoom room;
+    [HideInInspector] public SRPRoom room;
     public override bool Test() => true;
 }
 
 public class ITask : MonoBehaviour
 {
-    public readonly bool doMultipleTimes = false;
-    public bool done = false;
+    [SerializeField] bool _doMultipleTimes = false;
+    bool _done = false;
+    
+    public bool IsDone { get => _done; }
+    public bool IsRepeatable { get => _doMultipleTimes; }
 
     public virtual bool Do()
     {
-        if(doMultipleTimes == false && done)
+        if(_doMultipleTimes == false && _done)
             return false;
         return true;
     }
 }
 public class IBiomeTask : ITask
 {
-    public SRPRoom room;
+    [HideInInspector] public SRPRoom room;
     public override bool Do() => base.Do();
 }
 
@@ -63,7 +66,7 @@ public class ConditionalTaskSO : ScriptableObject
         foreach (var task in _tasks)
         {
             task.Do();
-            iFinished = task.done && (task.doMultipleTimes == false);
+            iFinished = task.IsDone && (task.IsRepeatable == false);
         }
     }
 }

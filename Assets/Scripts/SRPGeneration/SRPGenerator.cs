@@ -62,11 +62,11 @@ public class SRPGenerator : MonoBehaviour
         
     }
 
-    async void Start()
+    void Start()
     {
         if (generateWhenStarting == false)
             return;
-        await GenerateAllSteps();
+        GenerateAllSteps();
     }
 
     void OnDrawGizmos()
@@ -833,7 +833,7 @@ public class SRPGenerator : MonoBehaviour
         GameObject biomeGo = Instantiate(style.biomeBehaviorPrefab, room.root.transform);
         biomeGo.transform.localPosition = Vector3.zero;
         
-        IBiomeBehavior biome = biomeGo.GetComponent<IBiomeBehavior>();
+        BiomeBehavior biome = biomeGo.GetComponent<BiomeBehavior>();
         biome.room = room;
         
         room.biome = style.value;

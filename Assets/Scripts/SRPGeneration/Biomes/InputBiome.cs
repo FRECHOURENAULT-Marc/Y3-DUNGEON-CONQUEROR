@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 using Deps = DependenciesInjector;
 
 
-public class DefaultBiome : IBiomeBehavior
+public class InputBiome : BiomeBehavior
 {
     [SerializeField] InputActionReference _inputForFinishing;
     [SerializeField] float _maxDistanceActivation;
@@ -18,10 +18,7 @@ public class DefaultBiome : IBiomeBehavior
         _inputForFinishing.action.started += (cb) =>
         {
             if (IsRoomCompleted() == false)
-            {
-                Debug.Log("Condition not completed : " + Vector3.Distance(Deps.PDeps.Player.transform.position, room.transform.position) + "/" + _maxDistanceActivation);
                 return;
-            }
                 
             Debug.Log("Room completed !");
             CompleteRoom();

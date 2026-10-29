@@ -413,55 +413,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3081c1c37318db4ab06b8faa1d1fa53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
---- !u!1 &1400659914
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1400659916}
-  - component: {fileID: 1400659915}
-  m_Layer: 0
-  m_Name: ConditionalBiome
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1400659915
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1400659914}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f0bd567e1b55f642879d42b73491b25, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ConditionalBiome
-  _biomeColor: {r: 1, g: 0, b: 0, a: 1}
-  conditions: []
-  room: {fileID: 0}
-  startConditionalTasks: []
-  conditionalTasks: []
---- !u!4 &1400659916
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1400659914}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 183.63042, y: 0, z: 398.87234}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1578268032 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8444025307355289438, guid: 2853a2b82cad2764baad5d4e59431cb9, type: 3}
@@ -536,4 +487,3 @@ SceneRoots:
   - {fileID: 553042298}
   - {fileID: 1767522084}
   - {fileID: 14586213}
-  - {fileID: 1400659916}

@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using Deps = DependenciesInjector;
 
-public class ConditionalBiome : IBiomeBehavior
+public class ConditionalBiome : BiomeBehavior
 {
     [SerializeField] List<ConditionalTaskSO> startConditionalTasks;
     [SerializeField] List<ConditionalTaskSO> conditionalTasks;

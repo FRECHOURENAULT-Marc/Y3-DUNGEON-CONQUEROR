@@ -44,7 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea5a25f8b215a8640aa84881019054cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BiomeDefault
-  roomRoot: {fileID: 0}
-  _gizmoColor: {r: 1, g: 1, b: 1, a: 1}
+  _biomeColor: {r: 1, g: 1, b: 1, a: 1}
+  completionConditions: []
+  onFinishedTasks: []
+  room: {fileID: 0}
   _inputForFinishing: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _maxDistanceActivation: 50
