@@ -6,6 +6,7 @@ public class HealthController : MonoBehaviour
 {
     [SerializeField] GameObject _propsRoot;
     [SerializeField] EnnemiBrain _ennemiBrain;
+    [SerializeField] DeathDetector _playerDeathDetector;
 
     [Header("Health Setting")]
     [SerializeField] float _maxHealth;
@@ -65,5 +66,10 @@ public class HealthController : MonoBehaviour
 
         if ( _propsRoot != null )
             Destroy(_propsRoot);
+        
+        if ( _playerDeathDetector != null )
+        {
+            _playerDeathDetector.PlayerDeath();
+        }
     }
 }

@@ -8671,6 +8671,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   _propsRoot: {fileID: 8444025307355289438}
   _ennemiBrain: {fileID: 0}
+  _playerDeathDetector: {fileID: 5253706527465452017}
   _maxHealth: 100
   _currentHealth: 0
   _healthBarSlider: {fileID: 8094713965955302567}
@@ -9533,6 +9534,7 @@ GameObject:
   - component: {fileID: 3384045595007940711}
   - component: {fileID: 1525446132225399955}
   - component: {fileID: 2155842296894458094}
+  - component: {fileID: 5253706527465452017}
   m_Layer: 0
   m_Name: Brain
   m_TagString: Untagged
@@ -9603,6 +9605,18 @@ MonoBehaviour:
   _iconController: {fileID: 8247496825364953345}
   _playerHealth: {fileID: 0}
   _objectFloorPrefab: {fileID: 1157395001218508359, guid: dabfbe6e5edeb3d479a7ca1acaed6ba8, type: 3}
+--- !u!114 &5253706527465452017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7002474315519327310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a16564ce92cf72458bb24108a5c0105, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &7024031465901373625
 GameObject:
   m_ObjectHideFlags: 0
