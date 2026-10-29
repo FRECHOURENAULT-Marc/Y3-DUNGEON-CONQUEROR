@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sword
   m_EditorClassIdentifier: Assembly-CSharp::SOWeapon
   weaponName: Sword
-  weaponDamage: 10
+  weaponDamage: 30
   weaponAtttackDistance: 5
   weaponSweepAngle: 90
   weaponAttackSpeed: 1

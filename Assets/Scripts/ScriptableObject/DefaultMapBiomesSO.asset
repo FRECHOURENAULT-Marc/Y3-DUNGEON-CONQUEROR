@@ -15,15 +15,15 @@ MonoBehaviour:
   startBiome: {fileID: 11400000, guid: c44419972e2aee043930b2dcf6439196, type: 2}
   endBiome: {fileID: 11400000, guid: 85c0adb938b147a429011fe9ecef3e10, type: 2}
   biomeList:
-  - style: {fileID: 11400000, guid: fe25a254c308b754fafda4543665ca0d, type: 2}
-    prob: 0.5
-    maxOccurrences: 999
-    occurrences: 6
-  - style: {fileID: 11400000, guid: 1de81c5b37be443498140c9bf25ac2dd, type: 2}
-    prob: 0.5
+  - style: {fileID: 11400000, guid: b0e0387ecb3df104dbe84fe5020cdbea, type: 2}
+    prob: 0.4
     maxOccurrences: 999
     occurrences: 12
-  - style: {fileID: 11400000, guid: b0e0387ecb3df104dbe84fe5020cdbea, type: 2}
-    prob: 10
+  - style: {fileID: 11400000, guid: 42a56f33abd6f6d4b8092d03097d7d44, type: 2}
+    prob: 0.4
+    maxOccurrences: 999
+    occurrences: 12
+  - style: {fileID: 11400000, guid: 471c7da48d561284fa178abfeee1843b, type: 2}
+    prob: 0.2
     maxOccurrences: 999
     occurrences: 12

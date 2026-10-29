@@ -18,6 +18,8 @@ public class SRPGenerator : MonoBehaviour
     [SerializeField] MapStyleSO mapStyle;
     
     [Header("Generation")]
+    [SerializeField] GenerationMenuParameters parameters;
+    [Header("Old Fields")]
     [SerializeField] bool generateWhenStarting;
     [Range(0, 100000)] 
     [SerializeField] int maxTries;    
@@ -64,6 +66,13 @@ public class SRPGenerator : MonoBehaviour
 
     void Start()
     {
+        seed = parameters.seed;
+        randomSeed = parameters.rdmSeed;
+        maxTries = parameters.generationEffort;
+        target = parameters.maxRooms;
+        
+        DependenciesInjector.PDeps.SetWeapon(parameters.weapon);
+        
         if (generateWhenStarting == false)
             return;
         GenerateAllSteps();
@@ -80,7 +89,7 @@ public class SRPGenerator : MonoBehaviour
     }
 
     // Generation
-
+    
     [Button]
     public void StopGeneration()
     {

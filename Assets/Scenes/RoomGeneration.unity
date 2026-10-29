@@ -171,10 +171,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: SRPGenerator
       objectReference: {fileID: 0}
-    - target: {fileID: 5908605373136624177, guid: bd0eb47509c248b4482418959f2a76c1, type: 3}
-      propertyPath: target
-      value: 5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -415,6 +411,22 @@ PrefabInstance:
       propertyPath: _playerDeps._mainParent
       value: 
       objectReference: {fileID: 1578268032}
+    - target: {fileID: 1656235831339649306, guid: cf362284a2932a04dbf05f311b444484, type: 3}
+      propertyPath: _playerDeps._pWeaponList.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1656235831339649306, guid: cf362284a2932a04dbf05f311b444484, type: 3}
+      propertyPath: '_playerDeps._pWeaponList.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b65ce5c111c020741a38c010666cccf7, type: 2}
+    - target: {fileID: 1656235831339649306, guid: cf362284a2932a04dbf05f311b444484, type: 3}
+      propertyPath: '_playerDeps._pWeaponList.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: f802eab4e6aa59e4f96dfb65044648c0, type: 2}
+    - target: {fileID: 1656235831339649306, guid: cf362284a2932a04dbf05f311b444484, type: 3}
+      propertyPath: '_playerDeps._pWeaponList.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: a2a4af4a4f440a04bb35db1f65ae31e0, type: 2}
     - target: {fileID: 3287876308281172418, guid: cf362284a2932a04dbf05f311b444484, type: 3}
       propertyPath: m_Name
       value: DependenciesInjector

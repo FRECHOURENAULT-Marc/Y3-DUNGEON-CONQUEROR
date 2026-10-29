@@ -26,42 +26,24 @@ public abstract class Dependencies
 {
     // Fields
     [SerializeField] Collider _pCollider = null;
+    [SerializeField] List<SOWeapon> _pWeaponList;
+    [SerializeField] WEAPON_SELECTED _pWeapon = 0;
     
     // Properties
     public GameObject Player { get => _mainParent; } // "rename"
     public Collider PCollider { get => _pCollider; }
+
+    public SOWeapon PWeapon { get => _pWeaponList[(int)_pWeapon]; }
 
     public override void TryGettingFields(GameObject gameObject)
     {
         //Get other fields (if needed) in player hierarchy
         _pCollider = Player.transform.GetChild(2).GetComponentInChildren<Collider>();
     }
+
+    public void SetWeapon(WEAPON_SELECTED w) => _pWeapon = w;
 }
 
-
-[Serializable]
-public class SerializableGameObject {
-    public string Name;
-    public GameObject GameObject;
-}
-
-[Serializable]
-public class ParticulesDependencies : Dependencies
-{
-    // Fields
-    [SerializeField] List<SerializableGameObject> _partPrefabs;
-    
-
-    public override void TryGettingFields(GameObject gameObject) {}
-
-    public GameObject GetPrefab(string name)
-    {
-        foreach(SerializableGameObject p in _partPrefabs)
-            if (p.Name == name)
-                return p.GameObject;
-        return null;
-    }
-}
 
 
 public class DependenciesInjector : MonoBehaviour

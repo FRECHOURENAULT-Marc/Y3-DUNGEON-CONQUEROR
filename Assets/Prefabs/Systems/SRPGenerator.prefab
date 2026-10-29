@@ -44,11 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 674eaa46b6a01f247bb34e2a553d5586, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SRPGenerator
-  playerGo: {fileID: 0}
   roomStyle: {fileID: 11400000, guid: 0c219556ff2e5a741af98956bf2e6923, type: 2}
   mapStyle: {fileID: 11400000, guid: ffd1e248f9049ab44add053f272111be, type: 2}
+  parameters: {fileID: 11400000, guid: 3dfd31f658373f04e938f0462ac30ea4, type: 2}
   generateWhenStarting: 1
   maxTries: 500
-  target: 10
+  target: 5
   seed: 2127556595
   randomSeed: 0

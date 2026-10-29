@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Axe
   m_EditorClassIdentifier: Assembly-CSharp::SOWeapon
   weaponName: Axe
-  weaponDamage: 10
+  weaponDamage: 40
   weaponAtttackDistance: 5
   weaponSweepAngle: 45
-  weaponAttackSpeed: 1.5
+  weaponAttackSpeed: 1
   positionOffset: {x: -0.01, y: 0, z: 0.11}
   rotationOffset: {x: -4.87, y: -87.1, z: 168.2}
   scale: {x: 0.5, y: 0.5, z: 0.5}

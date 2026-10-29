@@ -3,7 +3,6 @@ using UnityEngine;
 public class StartTask : IBiomeTask
 {
     [SerializeField] GameObject weaponPrefab;
-    [SerializeField] SOWeapon starterWeaponSO;
     
     public override bool Do()
     {
@@ -15,13 +14,13 @@ public class StartTask : IBiomeTask
         GameObject pGo = DependenciesInjector.PDeps.Player;
         pGo.transform.position = startPos + new Vector3(0f, Utils.GetWorldSize(DependenciesInjector.PDeps.PCollider).y/2f, 0f);
         
-        if (starterWeaponSO == null || weaponPrefab == null)
+        if (DependenciesInjector.PDeps.PWeapon == null || weaponPrefab == null)
             return true;
         
         // Drop on Player
         GameObject weapon = Instantiate(weaponPrefab);
         ObjectBrain wBrain = weapon.GetComponent<ObjectBrain>();
-        wBrain.Weapon = starterWeaponSO;
+        wBrain.Weapon = DependenciesInjector.PDeps.PWeapon;
         wBrain.GenerateWeapon();
         weapon.transform.position = startPos + new Vector3(0f, 1f, 0f);
         
