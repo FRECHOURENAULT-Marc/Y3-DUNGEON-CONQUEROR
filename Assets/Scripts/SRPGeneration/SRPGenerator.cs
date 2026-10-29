@@ -696,7 +696,7 @@ public class SRPGenerator : MonoBehaviour
     }
     
     /// <summary>
-    /// Do a Bounds.Intersects with GameObject scales and roomStyle.padding
+    /// Do a Bounds.Intersects (Utils.CollidingWith) with GameObject scales and roomStyle.padding
     /// </summary>
     bool CollidingWith(GameObject go1, GameObject go2)
     {
@@ -706,20 +706,7 @@ public class SRPGenerator : MonoBehaviour
             go1.transform.localScale.z + roomStyle.padding));        
         Bounds b2 = new Bounds(go2.transform.position, go2.transform.localScale);
         
-        return b1.Intersects(b2);
-    }    
-    /// <summary>
-    /// Do a Bounds.Intersects with Collider.bounds.size and roomStyle.padding
-    /// </summary>
-    bool CollidingWith(Collider c1, Collider c2)
-    {
-        Bounds b1 = new Bounds(c1.transform.position, new Vector3(
-            c1.bounds.size.x + roomStyle.padding, 
-            c1.bounds.size.y + roomStyle.padding, 
-            c1.bounds.size.z + roomStyle.padding));
-        Bounds b2 = c2.bounds;
-        
-        return b1.Intersects(b2);
+        return Utils.CollidingWith(b1, b2);
     }
     
     /// <summary>

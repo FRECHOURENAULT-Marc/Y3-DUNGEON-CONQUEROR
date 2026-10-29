@@ -18,8 +18,12 @@ MonoBehaviour:
   - style: {fileID: 11400000, guid: fe25a254c308b754fafda4543665ca0d, type: 2}
     prob: 0.5
     maxOccurrences: 999
-    occurrences: 3
+    occurrences: 6
   - style: {fileID: 11400000, guid: 1de81c5b37be443498140c9bf25ac2dd, type: 2}
     prob: 0.5
     maxOccurrences: 999
-    occurrences: 7
+    occurrences: 12
+  - style: {fileID: 11400000, guid: b0e0387ecb3df104dbe84fe5020cdbea, type: 2}
+    prob: 10
+    maxOccurrences: 999
+    occurrences: 12

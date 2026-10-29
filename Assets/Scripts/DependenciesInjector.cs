@@ -25,13 +25,16 @@ public abstract class Dependencies
 [Serializable] public class PlayerDependencies : Dependencies
 {
     // Fields
+    [SerializeField] Collider _pCollider = null;
     
     // Properties
     public GameObject Player { get => _mainParent; } // "rename"
+    public Collider PCollider { get => _pCollider; }
 
     public override void TryGettingFields(GameObject gameObject)
     {
         //Get other fields (if needed) in player hierarchy
+        _pCollider = Player.transform.GetChild(2).GetComponentInChildren<Collider>();
     }
 }
 

@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceeeebef74f839a40acb89626d86515c, type: 3}
+  m_Name: SpawnerBiomeStyle
+  m_EditorClassIdentifier: Assembly-CSharp::BiomeStyleSO
+  biomeName: 
+  value: 0
+  biomeBehaviorPrefab: {fileID: 692174452112886162, guid: 42b3e1c2471fabf49a1aa7cdd37d4a04, type: 3}

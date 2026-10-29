@@ -64,7 +64,35 @@ public static class Utils {
         for (int i = list.Count - 1; i >= 0; i--)
             Utils.Destroy(list[i]);
         list.Clear();
-    }  
+    } 
+    
+    /// <summary>
+    /// Do a Bounds.Intersects with GameObject scales
+    /// </summary>
+    static public bool CollidingWith(GameObject go1, GameObject go2)
+    {
+        Bounds b1 = new Bounds(go1.transform.position, go1.transform.localScale);
+        Bounds b2 = new Bounds(go2.transform.position, go2.transform.localScale);
+        
+        return CollidingWith(b1, b2);
+    }    
+    /// <summary>
+    /// Do a Bounds.Intersects with Collider.bounds.size
+    /// </summary>
+    static public bool CollidingWith(Collider c1, Collider c2)
+    {
+        Bounds b1 = new Bounds(c1.transform.position,  c1.bounds.size);
+        Bounds b2 = c2.bounds;
+        
+        return CollidingWith(b1, b2);
+    }    
+    /// <summary>
+    /// Do a Bounds.Intersects
+    /// </summary>
+    static public bool CollidingWith(Bounds b1, Bounds b2)
+    {
+        return b1.Intersects(b2);
+    }
     
     /// <summary>
     /// Get edges of a rect

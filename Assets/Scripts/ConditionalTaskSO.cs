@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class ICondition : MonoBehaviour
 {
+    public virtual void Reset() { }
     public virtual bool Test() => true;
 }
 public class IBiomeCondition : ICondition
@@ -13,12 +14,17 @@ public class IBiomeCondition : ICondition
 
 public class ITask : MonoBehaviour
 {
-    [SerializeField] bool _doMultipleTimes = false;
-    bool _done = false;
+    [SerializeField] protected bool _doMultipleTimes = false;
+    protected bool _done;
     
     public bool IsDone { get => _done; }
     public bool IsRepeatable { get => _doMultipleTimes; }
 
+    public virtual void Reset()
+    {
+        _done = false;
+    }
+    
     public virtual bool Do()
     {
         if(_doMultipleTimes == false && _done)
@@ -35,22 +41,23 @@ public class IBiomeTask : ITask
 [CreateAssetMenu(fileName = "ConditionalTaskSO", menuName = "SO/ConditionalTask")]
 public class ConditionalTaskSO : ScriptableObject
 {
-    [SerializeField] List<ICondition> _conditions;
-    [SerializeField] List<ITask> _tasks;
+    public List<ICondition> _conditions;
+    public List<ITask> _tasks;
 
-    bool iFinished = false;
+    bool isFinished = false;
 
     public bool Try()
     {
         if (TestAll() == false)
             return false;
 
+        Debug.Log("Doing Conditional tasks");
         DoAll();
         return true;
     }
     public bool TestAll()
     {
-        if (iFinished)
+        if (isFinished)
             return false;
         
         foreach (var condition in _conditions)
@@ -63,10 +70,12 @@ public class ConditionalTaskSO : ScriptableObject
     }
     public void DoAll()
     {
+        isFinished = true;
         foreach (var task in _tasks)
         {
             task.Do();
-            iFinished = task.IsDone && (task.IsRepeatable == false);
+            if(task.IsDone == false || task.IsRepeatable)
+                isFinished = false;
         }
     }
 }

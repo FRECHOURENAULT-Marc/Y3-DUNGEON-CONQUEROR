@@ -19,18 +19,8 @@ public class BiomeBehavior : MonoBehaviour
 
     void Start()
     {
-        foreach (var condition in completionConditions)
-        {
-            if (condition is not IBiomeCondition)
-                return;
-            ((IBiomeCondition)condition).room = room;
-        }        
-        foreach (var task in onFinishedTasks)
-        {
-            if (task is not IBiomeTask)
-                return;
-            ((IBiomeTask)task).room = room;
-        }
+        InitializeTasks(onFinishedTasks);
+        InitializeConditions(completionConditions);
     }
     
     void FixedUpdate()
@@ -47,6 +37,28 @@ public class BiomeBehavior : MonoBehaviour
                 return;
         }
         CompleteRoom();
+    }
+
+
+    protected void InitializeTasks(List<ITask> tasks)
+    {
+        foreach (ITask task in tasks)
+        {
+            task.Reset();
+            if (task is not IBiomeTask)
+                return;
+            ((IBiomeTask)task).room = room;
+        }
+    }    
+    protected void InitializeConditions(List<ICondition> conditions)
+    {
+        foreach (var condition in conditions)
+        {
+            condition.Reset();
+            if (condition is not IBiomeCondition)
+                return;
+            ((IBiomeCondition)condition).room = room;
+        }     
     }
     
     public virtual bool IsRoomCompleted() // override if needed

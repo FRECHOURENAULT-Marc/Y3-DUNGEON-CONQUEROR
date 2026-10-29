@@ -17,6 +17,9 @@ public class ConditionalBiome : BiomeBehavior
 
     void Start()
     {
+        InitializeConditionalTasks(startConditionalTasks);
+        InitializeConditionalTasks(conditionalTasks);
+        
         foreach (ConditionalTaskSO conditionalTask in startConditionalTasks)
             conditionalTask.Try();
     }
@@ -27,5 +30,14 @@ public class ConditionalBiome : BiomeBehavior
             conditionalTask.Try();
     }
     
+    
+    void InitializeConditionalTasks(List<ConditionalTaskSO> condTasks)
+    {
+        foreach (ConditionalTaskSO conditionalTask in condTasks)
+        {
+            InitializeTasks(conditionalTask._tasks);
+            InitializeConditions(conditionalTask._conditions);
+        }
+    }
     
 }
