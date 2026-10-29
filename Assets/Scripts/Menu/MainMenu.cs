@@ -62,6 +62,7 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
+        TimerGame.StartTimer();
         SceneManager.LoadScene("RoomGeneration");
     }
 

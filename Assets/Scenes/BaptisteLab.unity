@@ -137,7 +137,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &181210561
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1972,6 +1972,14 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.1
       objectReference: {fileID: 0}
+    - target: {fileID: 750874594602205783, guid: 2853a2b82cad2764baad5d4e59431cb9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1234059334000429264, guid: 2853a2b82cad2764baad5d4e59431cb9, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1318105113407515852, guid: 2853a2b82cad2764baad5d4e59431cb9, type: 3}
       propertyPath: _UIRoot
       value: 
@@ -2063,6 +2071,10 @@ PrefabInstance:
     - target: {fileID: 4625285010264849088, guid: 2853a2b82cad2764baad5d4e59431cb9, type: 3}
       propertyPath: m_LocalRotation.y
       value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5076876259570706335, guid: 2853a2b82cad2764baad5d4e59431cb9, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5295860447982058570, guid: 2853a2b82cad2764baad5d4e59431cb9, type: 3}
       propertyPath: m_Sources.Array.data[0].sourceTransform
