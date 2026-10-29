@@ -5,6 +5,8 @@ using UnityEngine.UI;
 public class HealthController : MonoBehaviour
 {
     [SerializeField] GameObject _propsRoot;
+    [SerializeField] EnnemiBrain _ennemiBrain;
+    [SerializeField] DeathDetector _playerDeathDetector;
 
     [Header("Health Setting")]
     [SerializeField] float _maxHealth;
@@ -17,6 +19,8 @@ public class HealthController : MonoBehaviour
 
 
     public float CurrentHealth { get => _currentHealth; }
+
+    public event Action GetDamage;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -35,6 +39,7 @@ public class HealthController : MonoBehaviour
     public void GetAttacked(float dmg)
     {
         // Debug.Log($"Getting attacked (-{dmg} health)");
+        GetDamage?.Invoke();
 
         if ( dmg < 0 )
             return;
@@ -55,6 +60,16 @@ public class HealthController : MonoBehaviour
         Debug.Log($"{gameObject} is dead");
         PropsDeath?.Invoke();
 
-        Destroy(_propsRoot);
+        if ( _ennemiBrain != null )
+            _ennemiBrain.IsAlive = false;
+
+
+        if ( _propsRoot != null )
+            Destroy(_propsRoot);
+        
+        if ( _playerDeathDetector != null )
+        {
+            _playerDeathDetector.PlayerDeath();
+        }
     }
 }

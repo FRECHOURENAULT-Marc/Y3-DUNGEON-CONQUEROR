@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using NaughtyAttributes;
 using Unity.VisualScripting;
@@ -26,6 +27,7 @@ public class PlayerAttackSystem : MonoBehaviour
     [SerializeField] float _weaponDamage;
     [SerializeField] float _weaponAttackDistance;
     [SerializeField] float _weaponSweepAngle;
+    [SerializeField] float _weaponSpeed;
 
     [Header("Capacity")]
     [SerializeField] float _distanceMultiplier;
@@ -88,6 +90,13 @@ public class PlayerAttackSystem : MonoBehaviour
         set => _weaponAttackDistance = value;
     }
 
+    public float WeaponSpeed
+    {
+        get => _weaponSpeed;
+
+        set => _weaponSpeed = value;
+    }
+
     void Awake()
     {
         _canAttack = true;
@@ -138,18 +147,20 @@ public class PlayerAttackSystem : MonoBehaviour
     {
         if( _canAttack )
         {
+            List<GameObject> ennemiHits = new List<GameObject>();
+
             float sweepAngle = _asWeapon ? _weaponSweepAngle : _sweepAngle;
             float attackDistance = _asWeapon ? _weaponAttackDistance : _raycastDistance;
 
             // Wait for the start of the animation
-            await Awaitable.WaitForSecondsAsync(0.1f);
+            await Awaitable.WaitForSecondsAsync(0.1f / _weaponSpeed);
 
-            // Start the recovery timer (set to 3s)
+            // Start the recovery timer
             AttackRecovery();
 
 
             // Wait for the moment where the animation attack
-            await Awaitable.WaitForSecondsAsync(0.5f);
+            await Awaitable.WaitForSecondsAsync(0.5f / _weaponSpeed);
 
             int nbRay = (int) Math.Floor( Math.Floor( sweepAngle  * 2 ) / 2 );
 
@@ -179,6 +190,11 @@ public class PlayerAttackSystem : MonoBehaviour
                     // Check if an object is an ennemi
                     if ( ctxObj.GetComponent<EnnemiTag>() )
                     {
+                        if ( ennemiHits.IndexOf(ctxObj) != -1 )
+                            continue;
+                        
+                        ennemiHits.Add(ctxObj);
+                        
                         Debug.Log("Ennemi Tag found on obj");
                         ComponentGetter OUT;
                         ctxObj.TryGetComponent<ComponentGetter>(out OUT);
@@ -199,6 +215,8 @@ public class PlayerAttackSystem : MonoBehaviour
 
             float damage = _asWeapon ? _weaponDamage : _damage;
 
+            Debug.Log($"Attack ennemi with {damage} damage");
+
             ctx.GetAttacked(damage);
 
             ctx.PropsDeath -= HandleKillProps;
@@ -215,7 +233,7 @@ public class PlayerAttackSystem : MonoBehaviour
     async void AttackRecovery()
     {
         _canAttack = false;
-        await Awaitable.WaitForSecondsAsync(2);
+        await Awaitable.WaitForSecondsAsync(1 / _weaponSpeed);
         _canAttack = true;
     }
 

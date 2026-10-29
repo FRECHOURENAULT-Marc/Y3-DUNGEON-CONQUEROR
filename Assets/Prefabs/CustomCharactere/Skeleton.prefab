@@ -873,6 +873,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthController
   _propsRoot: {fileID: 3498049009617409390}
+  _ennemiBrain: {fileID: 5601224359616572865}
   _maxHealth: 100
   _currentHealth: 0
   _healthBarSlider: {fileID: 299379349078160519}
@@ -921,7 +922,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   _EReferences: {fileID: 4334797741695734642}
   _attackDistance: 4
-  _damage: 10
+  _damage: 5
   _targetList: []
 --- !u!1001 &4568968917835353389
 PrefabInstance:

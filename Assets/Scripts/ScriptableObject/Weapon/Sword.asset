@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponAtttackDistance: 5
   weaponSweepAngle: 90
   weaponAttackSpeed: 1
-  positionOffset: {x: 0, y: 0, z: 0}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  scale: {x: 1, y: 1, z: 1}
-  weaponPrefabe: {fileID: 1486732371734550431, guid: 89643f3191894f9429feaeae843f7e1b, type: 3}
+  positionOffset: {x: -0.054, y: 0.05, z: 0.06}
+  rotationOffset: {x: -20, y: 100, z: 180}
+  scale: {x: 0.5, y: 0.5, z: 0.5}
+  weaponPrefabe: {fileID: 2837585915135645727, guid: a5f1721b779107247ac76330252c12a7, type: 3}

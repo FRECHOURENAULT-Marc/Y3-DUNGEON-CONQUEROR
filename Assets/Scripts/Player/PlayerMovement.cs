@@ -3,6 +3,7 @@ using NaughtyAttributes;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -58,6 +59,12 @@ public class PlayerMovement : MonoBehaviour
     float _dashTimeRemaining;
     Vector3 _dashDirection;
     CollisionDetectionMode _previousCollisionDetectionMode;
+
+    public Image _dashImage;
+    public SOCapacity _dashSO;
+
+    public Image _douleJumpImage;
+    public SOCapacity _douleJumpSO;
 
 
     public bool AsUnlockDash { get => _asUnlockDash; set => _asUnlockDash = value; }
@@ -138,6 +145,20 @@ public class PlayerMovement : MonoBehaviour
         _predictedIsGrounded = Physics.Raycast(_PReference.PlayerRoot.transform.position, Vector3.down, _jumpRaycastDistance + 1);
         Debug.DrawRay(_PReference.PlayerRoot.transform.position, Vector3.down * _jumpRaycastDistance, Color.red);
         Debug.DrawRay(_PReference.PlayerRoot.transform.position, Vector3.down * (_jumpRaycastDistance + 1), Color.blue);
+
+
+        // Update dash icon
+        if ( _asUnlockDash )
+        {
+            if ( _canDash ) _dashImage.sprite = _dashSO.icon;
+            else _dashImage.sprite = _dashSO.iconDisable;
+        }
+
+        if ( _asUnlockDoubleJump )
+        {
+            if ( _canDoubleJump ) _douleJumpImage.sprite = _douleJumpSO.icon;
+            else _douleJumpImage.sprite = _douleJumpSO.iconDisable;
+        }
     }
 
     void FixedUpdate()

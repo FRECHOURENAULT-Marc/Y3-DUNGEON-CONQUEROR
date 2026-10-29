@@ -20,6 +20,11 @@ public class PlayerReferences : MonoBehaviour
     [SerializeField] PlayerXPSystem _playerXPSystem;
     [SerializeField] MouseController _mouseController;
     [SerializeField] PlayerAnimation _playerAnimation;
+    [SerializeField] IconController _iconController;
+    [SerializeField] HealthController _playerHealth;
+
+    [Header("Prefab")]
+    [SerializeField] GameObject _objectFloorPrefab;
 
 
     // Getter GameObject
@@ -29,7 +34,7 @@ public class PlayerReferences : MonoBehaviour
 
     // Getter Component
     public Rigidbody PlayerRigidbody { get => _playerRB; }
-    public Camera PlayerCamera { get => _playerCamera; }
+    public Camera PlayerCamera { get => _playerCamera; set => _playerCamera = value; }
     public Animator PlayerAnimator { get => _playerAnimator; }
 
     // Getter Script
@@ -39,4 +44,10 @@ public class PlayerReferences : MonoBehaviour
     public PlayerXPSystem PlayerXPSystem { get => _playerXPSystem; }
     public PlayerAnimation PlayerAnimation { get => _playerAnimation; }
     public MouseController MouseController { get => _mouseController; }
+    public IconController IconController { get => _iconController; }
+    public HealthController HealthController { get => _playerHealth; }
+
+
+    // Getter Prefab
+    public GameObject ObjectFloorPrefab { get => _objectFloorPrefab; }
 }
