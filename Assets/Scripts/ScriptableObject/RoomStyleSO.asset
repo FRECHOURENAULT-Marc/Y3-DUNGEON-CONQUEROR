@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc43ccb9a5b47e248b8681ba74e8e83e, type: 3}
   m_Name: RoomStyleSO
   m_EditorClassIdentifier: Assembly-CSharp::RoomStyleSO
-  minWidth: 32
-  maxWidth: 64
-  minDepth: 32
-  maxDepth: 64
-  minHeight: 4
+  minWidth: 16
+  maxWidth: 32
+  minDepth: 16
+  maxDepth: 32
+  minHeight: 6
   maxHeight: 12
   padding: 1
   maxConnexion: 4

@@ -31,7 +31,7 @@ public class SRPGenerator : MonoBehaviour
     
     CancellationTokenSource _cs;
     List<SRPRoom> _generatedRooms;
-    List<SRPRoom> _uselessRooms;
+    //List<SRPRoom> _uselessRooms;
     List<SRPRoom> _validatedRooms;
 
     SRPRoom startRoom;
@@ -100,7 +100,7 @@ public class SRPGenerator : MonoBehaviour
     public async Task GenerateAllSteps()
     {
         DateTime last = DateTime.Now;
-        DateTime begin = DateTime.Now;
+        DateTime begin = new DateTime(DateTime.Now.Ticks);
 
         ResetAll();
         InitSeed();
@@ -130,7 +130,7 @@ public class SRPGenerator : MonoBehaviour
         double buildCorridorDt = Utils.GetElapsedTime(last, DateTime.Now).Millisecond; // Debug
         last = DateTime.Now;
         
-        RemoveNotConnectedRooms(); // Destroy room not connected
+        //RemoveNotConnectedRooms(); // Destroy room not connected
         ReplaceNotConnectedDoors(); // Replace useless doors by walls
         
         double cleanDt = Utils.GetElapsedTime(last, DateTime.Now).Millisecond;
@@ -144,7 +144,7 @@ public class SRPGenerator : MonoBehaviour
         // Debug
         Debug.Log(
             "Generation ended (total time: " + (Utils.GetElapsedTime(begin, DateTime.Now).Millisecond) + "ms)" +
-            "\n----- Detailed time data -----" +
+            "\n----- Detailed time data (not representative) -----" +
             "\nReset : " + resetDt + "ms" +
             "\nGen : " + genRoomDt + "ms" +
             "\nBuildR : " + buildRoomDt + "ms" +
@@ -206,7 +206,7 @@ public class SRPGenerator : MonoBehaviour
 
             if (IsRoomValid(nSrpRoom) == false)
             {
-                Utils.Destroy(nSrpRoom);
+                Utils.Destroy(nSrpRoom.root);
                 continue;
             }
             
@@ -368,8 +368,13 @@ public class SRPGenerator : MonoBehaviour
             // If target reached, stop generating corridor and remove remaining rooms
             if (_validatedRooms.Count >= target)
             {
-                for(int j = i; j >= 0; j--)
-                    FromGeneratedToUseless(_generatedRooms[j]);
+                for (int j = i; j >= 0; j--)
+                {
+                    Utils.Destroy(_generatedRooms[j]);
+                    //FromGeneratedToUseless(_generatedRooms[j]);
+                }
+                
+                Debug.Log("All rooms connected: " + _validatedRooms.Count);
                 break;
             }
                 
@@ -396,8 +401,8 @@ public class SRPGenerator : MonoBehaviour
                 // 0.5f : 60° max
                 // 0.3f : 72° max
                 // 0.0f : 90° max
-                if (Vector3.Dot(GetDoorOutward(door), dirToOther) < 0.7f) continue;       
-                if (Vector3.Dot(GetDoorOutward(closestDoor), -dirToOther) < 0.7f) continue;
+                if (Vector3.Dot(GetDoorOutward(door), dirToOther) < 0.5f) continue;       
+                if (Vector3.Dot(GetDoorOutward(closestDoor), -dirToOther) < 0.5f) continue;
                 
                 // Mark door as use
                 door.isUsed = true;
@@ -428,7 +433,8 @@ public class SRPGenerator : MonoBehaviour
                 continue;
             
             // room cannot be connected, remove it to avoid useless computations in next checks
-            _uselessRooms.Add(room);
+            // _uselessRooms.Add(room);
+            Utils.Destroy(room.root);
             _generatedRooms.RemoveAt(i);
         }
     }
@@ -436,7 +442,8 @@ public class SRPGenerator : MonoBehaviour
     [Button]
     void RemoveNotConnectedRooms()
     {
-        Utils.DestroyObjectsInList(ref _uselessRooms);
+        //Debug.Log("Useless room deleted: " + _uselessRooms.Count);
+        //Utils.DestroyObjectsInList(ref _uselessRooms);
     }
     [Button]
     void ReplaceNotConnectedDoors()
@@ -615,7 +622,7 @@ public class SRPGenerator : MonoBehaviour
         
         _generatedRooms ??= new List<SRPRoom>();
         _validatedRooms ??= new List<SRPRoom>();
-        _uselessRooms ??= new List<SRPRoom>();
+        //_uselessRooms ??= new List<SRPRoom>();
 
         _cs ??= new CancellationTokenSource();
     }
@@ -630,7 +637,7 @@ public class SRPGenerator : MonoBehaviour
         
         Utils.DestroyObjectsInList(ref _generatedRooms);
         Utils.DestroyObjectsInList(ref _validatedRooms);
-        Utils.DestroyObjectsInList(ref _uselessRooms);
+        //Utils.DestroyObjectsInList(ref _uselessRooms);
         
         for (int i = transform.childCount - 1; i >= 0; i--)
             Utils.Destroy(transform.GetChild(i).gameObject);
@@ -643,13 +650,13 @@ public class SRPGenerator : MonoBehaviour
         
         Debug.Log($"Room {r.root.name} has already been validated or removed from generated", r.global);
     }      
-    void FromGeneratedToUseless(SRPRoom r)
-    {
-        if (FromTo(_generatedRooms, _uselessRooms, r))
-            return;
-        
-        Debug.Log($"Room {r.root.name} has already been moved to useless or removed from generated", r.global);
-    }    
+    // void FromGeneratedToUseless(SRPRoom r)
+    // {
+    //     if (FromTo(_generatedRooms, _uselessRooms, r))
+    //         return;
+    //     
+    //     Debug.Log($"Room {r.root.name} has already been moved to useless or removed from generated", r.global);
+    // }    
     
     bool FromTo<T>(List<T> origin, List<T> dest, T r)
     {
